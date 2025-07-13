@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String   @unique
+  password  String?
+  role      Role     @default(JOBSEEKER)
+  createdAt DateTime @default(now())
+
+  jobSeeker JobSeeker?
+  employer  Employer?
+
+  Job       Job[]    @relation("PostedJobs")
+  Applied   Application[]
+}
+
+model JobSeeker {
+  id        String   @id
+  user      User     @relation(fields: [id], references: [id])
+  resumeUrl String?
+  skills    String?
+  bio       String?
+}
+
+model Employer {
+  id              String   @id
+  user            User     @relation(fields: [id], references: [id])
+  companyName     String
+  companyWebsite  String?
+  companyAddress  String?
+  companyBio      String?
+}
+
+model Job {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  employerId  String
+  employer    User     @relation("PostedJobs", fields: [employerId], references: [id])
+  createdAt   DateTime @default(now())
+  Application Application[]
+}
+
+model Application {
+  id          String   @id @default(cuid())
+  jobId       String
+  userId      String
+  job         Job      @relation(fields: [jobId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+  coverLetter String
+  createdAt   DateTime @default(now())
+}
+
+enum Role {
+  EMPLOYER
+  JOBSEEKER
+}

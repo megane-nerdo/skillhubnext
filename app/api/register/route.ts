@@ -1,19 +1,21 @@
 // app/api/register/route.ts
-import { PrismaClient, Role } from "@/app/generated/prisma"
-import { hash } from 'bcryptjs'
+import { PrismaClient } from "@prisma/client";
+import { hash } from "bcryptjs";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  const data = await req.json()
-  const { name, email, password, role } = data
+  const data = await req.json();
+  const { name, email, password, role } = data;
 
-  const existing = await prisma.user.findUnique({ where: { email } })
+  const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) {
-    return new Response(JSON.stringify({ error: 'User already exists' }), { status: 400 })
+    return new Response(JSON.stringify({ error: "User already exists" }), {
+      status: 400,
+    });
   }
 
-  const hashedPassword = await hash(password, 10)
+  const hashedPassword = await hash(password, 10);
 
   const newUser = await prisma.user.create({
     data: {
@@ -21,14 +23,14 @@ export async function POST(req: Request) {
       email,
       password: hashedPassword,
       role,
-      ...(role === 'EMPLOYER' && {
-        employer: { create: { companyName: 'Your Company' } },
+      ...(role === "EMPLOYER" && {
+        employer: { create: { companyName: "Your Company" } },
       }),
-      ...(role === 'JOBSEEKER' && {
+      ...(role === "JOBSEEKER" && {
         jobSeeker: { create: {} },
       }),
     },
-  })
+  });
 
-  return Response.json({ message: 'User registered', userId: newUser.id })
+  return Response.json({ message: "User registered", userId: newUser.id });
 }

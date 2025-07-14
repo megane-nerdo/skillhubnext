@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
 }
 
 datasource db {
@@ -49,6 +48,7 @@ model Employer {
 model Job {
   id          String   @id @default(cuid())
   title       String
+  location    String
   description String
   employerId  String
   employer    User     @relation("PostedJobs", fields: [employerId], references: [id])

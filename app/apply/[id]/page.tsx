@@ -1,75 +1,93 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  applyJobSchema,
-  ApplyJobFormValues,
-} from '../../lib/validation/applyJobSchema'
+import { useSession } from 'next-auth/react'
+import { useParams, useRouter } from 'next/navigation'
+import axios from 'axios'
+export default function ApplyJobPage() {
+  const { id } = useParams()
+  const router = useRouter()
+  // const { data: session } = useSession()
+  const [job, setJob] = useState<any>(null)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+  const { register, handleSubmit, reset } = useForm()
 
-export default function ApplyJobPage({ params }: { params: { id: string } }) {
-  const [submitted, setSubmitted] = useState(false)
+  useEffect(() => {
+    const fetchJob = async () => {
+      const res = await axios.get(`/api/jobs/${id}`)
+      setJob(res.data)
+    }
 
-  const form = useForm<ApplyJobFormValues>({
-    resolver: zodResolver(applyJobSchema),
-    defaultValues: {
-      coverLetter: '',
-    },
-  })
+    fetchJob()
+  }, [id])
+  const onSubmit = async () => {
+    setLoading(true)
+    setError('')
 
-  const onSubmit = (data: ApplyJobFormValues) => {
-    console.log('Applied to job ID:', params.id)
-    console.log('Cover Letter:', data.coverLetter)
-    setSubmitted(true)
-    form.reset()
+    try {
+      const res = await axios.post(`/api/apply/${id}`, {
+        coverLetter: 'Your cover letter here', // replace with actual data
+      })
+
+      if (res.status === 200) {
+        reset()
+        router.push('/dashboard') // redirect to job seeker dashboard
+      }
+    } catch (err: any) {
+      setError(err.response?.data || 'Failed to apply')
+    }
+
+    setLoading(false)
   }
+  // const onSubmit = async (data: any) => {
+  //   setLoading(true)
+  //   setError('')
+
+  //   const res = await fetch(`/api/apply/${id}`, {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify({ coverLetter: data.coverLetter }),
+  //   })
+
+  //    if (res.ok) {
+  //      reset()
+  //      router.push('/dashboard') // redirect to job seeker dashboard
+  //    } else {
+  //      const msg = await res.text()
+  //     setError(msg || 'Failed to apply')
+  //   }
+
+  //   setLoading(false)
+  // }
+
+  //if (!session) return <p className="p-6">Please log in to apply.</p>
+  if (!job) return <p className="p-6">Loading...</p>
 
   return (
-    <main className="p-6 max-w-xl mx-auto">
-      <h1 className="text-2xl font-bold mb-4">
-        Apply for Job ID: {params.id}
-      </h1>
+    <main className="p-6 max-w-2xl mx-auto">
+      <h1 className="text-xl font-bold mb-2">Apply for: {job.title}</h1>
+      <p className="mb-4 text-gray-700">{job.description}</p>
 
-      {submitted && (
-        <div className="mb-4 p-3 bg-green-100 text-green-800 rounded">
-          Successfully applied! (data logged in console)
-        </div>
-      )}
+      <form className="space-y-4">
+        <textarea
+          {...register('coverLetter', { required: true })}
+          placeholder="Your cover letter..."
+          className="w-full border rounded p-2"
+          rows={5}
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          {loading ? 'Submitting...' : 'Submit Application'}
+        </button>
+      </form>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="coverLetter"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Cover Letter</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Why should we hire you?"
-                    className="min-h-[150px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button type="submit">Submit Application</Button>
-        </form>
-      </Form>
+      {error && <p className="text-red-600 mt-2">{error}</p>}
     </main>
   )
 }

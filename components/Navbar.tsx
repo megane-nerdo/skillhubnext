@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { signOut, useSession } from 'next-auth/react'
+import { redirect } from 'next/dist/server/api-utils'
+import { Router } from 'next/router'
 
 export default function Navbar() {
   const { data: session } = useSession()
@@ -24,12 +26,12 @@ export default function Navbar() {
       {session ? (
         <div className="flex items-center gap-2">
           <span>{session.user.email} ({session.user.role})</span>
-          <button onClick={() => signOut()} className="text-sm underline">Logout</button>
+          <button onClick={() => signOut({ callbackUrl: '/' })} className="text-sm underline">Logout</button>
         </div>
       ) : (
         <div>
-        <Link href="/auth/login">Login</Link>
-        <Link href="/auth/register" className="ml-4">Register</Link>
+          <Link href="/auth/login">Login</Link>
+          <Link href="/auth/register" className="ml-4">Register</Link>
         </div>
       )}
     </nav>

@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,7 +27,7 @@ export default async function EditJobPage({
 }) {
   const session = await getServerSession(authOptions);
   const userId = session?.user.id;
-
+ window.alert("Edit Job Page Loaded");
   if (!userId || session?.user.role !== "EMPLOYER") {
     return <p className="p-6 text-red-600">Access Denied</p>;
   }
@@ -59,7 +58,6 @@ export default async function EditJobPage({
     alert("Job updated (not persisted)");
     router.push("/employer-dashboard");
   };
-
   if (!job) {
     return <p className="p-6">Job not found</p>;
   }

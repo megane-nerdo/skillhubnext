@@ -65,6 +65,10 @@ model Application {
   coverLetter String
   createdAt   DateTime @default(now())
 }
+model Industry {
+  id          String    @id @default(cuid())
+  name        String    @unique
+}
 
 enum Role {
   EMPLOYER

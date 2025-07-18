@@ -29,7 +29,7 @@ export default function LoginPage() {
     if (res?.error) {
       setError('Invalid email or password')
     } else {
-        redirect('/dashboard')
+        redirect('/jobs')
       console.log('Login successful:', data)
     }
   }

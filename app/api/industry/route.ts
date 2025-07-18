@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name } = body;
+    
     try {
         const industry = await prisma.industry.create({
             data: { name }

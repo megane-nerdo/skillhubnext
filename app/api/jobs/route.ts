@@ -28,6 +28,15 @@ export async function POST(req: Request) {
   return Response.json(job);
 }
 
+export async function GET(req: Request) {
+  console.log("GET /api/jobs");
+  const jobs = await prisma.job.findMany({
+    include: {
+      employer: true,
+    },
+  });
+  return Response.json(jobs);
+}
 export async function DELETE(req: Request) {
   console.log("DELETE /api/jobs/:id");
   const session = (await getServerSession(authOptions)) as {

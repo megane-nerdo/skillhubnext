@@ -48,6 +48,9 @@ model Employer {
 model Job {
   id          String   @id @default(cuid())
   title       String
+  salary      String
+  industryId  String
+  industry    Industry @relation(fields: [industryId], references [id])
   location    String
   description String
   employerId  String

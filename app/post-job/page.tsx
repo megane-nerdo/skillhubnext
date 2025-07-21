@@ -1,60 +1,76 @@
-'use client'
+"use client";
 
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { postJobSchema, PostJobFormValues } from './postJobSchema'
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { postJobSchema, PostJobFormValues } from "./postJobSchema";
 
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/form'
-import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function PostJobPage() {
   const form = useForm<PostJobFormValues>({
     resolver: zodResolver(postJobSchema),
     defaultValues: {
-      title: '',
-      salary: '',
-      industry: '',
-      location: '',
-      description: '',
+      title: "",
+      salary: "",
+      industry: "",
+      location: "",
+      description: "",
     },
-  })
-  
-  const [industries, setIndustries] = useState<{ id: string; name: string }[]>([])
+  });
 
-useEffect(() => {
-  const fetchIndustries = async () => {
-    try {
-      const res = await axios.get('/api/industry')
-      setIndustries(res.data)
-    } catch (error) {
-      console.error('Error fetching industries', error)
-    }
-  }
+  const [industries, setIndustries] = useState<{ id: string; name: string }[]>(
+    []
+  );
 
-  fetchIndustries()
-}, [])
+  useEffect(() => {
+    const fetchIndustries = async () => {
+      try {
+        const res = await axios.get("/api/industry");
+        setIndustries(res.data);
+      } catch (error) {
+        console.error("Error fetching industries", error);
+      }
+    };
 
+    fetchIndustries();
+  }, []);
 
   const onSubmit = async (data: PostJobFormValues) => {
-    console.log('Submitting job:', data)
-    const res = await fetch('/api/jobs', {
-        method: 'POST',
-        body: JSON.stringify(data),
-    })
+    console.log("Submitting job:", data);
+    const res = await fetch("/api/jobs", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
     if (!res.ok) {
-      const error = await res.json()
-      console.error('Error posting job:', error)
-      return
+      const error = await res.json();
+      console.error("Error posting job:", error);
+      return;
+    } else {
+      console.log("Form submitted:", data);
+      form.reset();
     }
-    else{
-      console.log('Form submitted:', data)
-      form.reset()
-    }
-  }
+  };
 
   return (
     <main className="p-6 max-w-xl mx-auto">
@@ -83,7 +99,7 @@ useEffect(() => {
               <FormItem>
                 <FormLabel>Salary</FormLabel>
                 <FormControl>
-                  <Input placeholder= ".....Kyats" {...field} />
+                  <Input placeholder=".....Kyats" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -91,33 +107,32 @@ useEffect(() => {
           />
 
           <FormField
-  control={form.control}
-  name="industry"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Industry</FormLabel>
-      <Select
-        onValueChange={field.onChange}
-        defaultValue={field.value}
-      >
-        <FormControl>
-          <SelectTrigger>
-            <SelectValue placeholder="Select an industry" />
-          </SelectTrigger>
-        </FormControl>
-        <SelectContent>
-          {industries.map((industry) => (
-            <SelectItem key={industry.id} value={industry.name}>
-              {industry.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
+            control={form.control}
+            name="industry"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Industry</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select an industry" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {industries.map((industry) => (
+                      <SelectItem key={industry.id} value={industry.name}>
+                        {industry.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
           <FormField
             control={form.control}
@@ -155,5 +170,5 @@ useEffect(() => {
         </form>
       </Form>
     </main>
-  )
+  );
 }

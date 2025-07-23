@@ -1,6 +1,8 @@
 import { getServerSession } from "next-auth";
 import { PrismaClient } from "@prisma/client";
 import { authOptions } from "@/app/lib/auth";
+import { NextResponse } from "next/server";
+import { postJobSchema } from "../../post-job/postJobSchema";
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
@@ -16,9 +18,22 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json();
+  console.log(
+    body.salary,
+    body.title,
+    body.industry,
+    body.location,
+    body.description
+  );
+  const industryRecord = await prisma.industry.findUnique({
+    where: { name: body.industry },
+  });
+  console.log("Industry Record:", industryRecord);
   const job = await prisma.job.create({
     data: {
       title: body.title,
+      salary: body.salary,
+      industryId: industryRecord?.id,
       location: body.location,
       description: body.description,
       employerId: session.user.id,
@@ -36,24 +51,4 @@ export async function GET(req: Request) {
     },
   });
   return Response.json(jobs);
-}
-export async function DELETE(req: Request) {
-  console.log("DELETE /api/jobs/:id");
-  const session = (await getServerSession(authOptions)) as {
-    user: { id: string; role: string };
-  } | null;
-  if (!session || session.user.role !== "EMPLOYER") {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  const jobId = req.url.split("/").pop();
-  if (!jobId) {
-    return new Response("Job ID is required", { status: 400 });
-  }
-
-  await prisma.job.delete({
-    where: { id: jobId, employerId: session.user.id },
-  });
-
-  return Response.json({ message: "Job deleted successfully" });
 }

@@ -1,15 +1,102 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/lib/auth";
+import { NextResponse } from "next/server";
+import { postJobSchema } from "../../../post-job/postJobSchema";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export async function GET(_: Request, { params }: { params: { id: string } }) {
   const job = await prisma.job.findUnique({
     where: { id: params.id },
-  })
+  });
 
   if (!job) {
-    return new Response('Not found', { status: 404 })
+    return new Response("Not found", { status: 404 });
   }
 
-  return Response.json(job)
+  return Response.json(job);
+}
+
+export async function DELETE(
+  req: Request,
+  context: { params: { id: string } }
+) {
+  const { params } = context;
+  const jobId = params.id;
+
+  if (!jobId) {
+    return NextResponse.json({ error: "Job ID is required" }, { status: 400 });
+  }
+
+  try {
+    await prisma.job.delete({
+      where: { id: jobId },
+    });
+
+    return NextResponse.json({ message: "Job deleted successfully" });
+  } catch (error) {
+    console.error("DELETE /api/jobs/[id] error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete job" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: Request, context: { params: { id: string } }) {
+  console.log("PUttttttttttt");
+  const { params } = context;
+  const jobId = params.id;
+
+  if (!jobId) {
+    return NextResponse.json({ error: "Job ID is required" }, { status: 400 });
+  }
+
+  try {
+    const body = await req.json();
+
+    const parsed = postJobSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.format() },
+        { status: 400 }
+      );
+    }
+
+    const { title, salary, industry, location, description } = parsed.data;
+
+    // Find the industry by name
+    const industryRecord = await prisma.industry.findFirst({
+      where: { name: industry },
+    });
+
+    if (!industryRecord) {
+      return NextResponse.json(
+        { error: "Industry not found" },
+        { status: 404 }
+      );
+    }
+
+    // Update the job
+    const updatedJob = await prisma.job.update({
+      where: { id: jobId },
+      data: {
+        title,
+        salary,
+        location,
+        description,
+        industryId: industryRecord.id,
+      },
+    });
+
+    return NextResponse.json(updatedJob, { status: 200 });
+  } catch (err) {
+    console.error("PUT /api/jobs/[id] error:", err);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }

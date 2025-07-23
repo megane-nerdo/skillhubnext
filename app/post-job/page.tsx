@@ -57,7 +57,6 @@ export default function PostJobPage() {
   }, []);
 
   const onSubmit = async (data: PostJobFormValues) => {
-    console.log("Submitting job:", data);
     const res = await fetch("/api/jobs", {
       method: "POST",
       body: JSON.stringify(data),
@@ -73,102 +72,135 @@ export default function PostJobPage() {
   };
 
   return (
-    <main className="p-6 max-w-xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Post a Job</h1>
+    <main className="px-4 py-8 sm:px-6 lg:px-8 bg-gray-50 min-h-screen">
+      <div className="max-w-2xl mx-auto bg-white border border-gray-200 shadow-lg rounded-2xl p-6 sm:p-8">
+        <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-6 text-center">
+          Post a Job
+        </h1>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Job Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="Frontend Developer" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="salary"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Salary</FormLabel>
-                <FormControl>
-                  <Input placeholder=".....Kyats" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="industry"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Industry</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            {/* Title */}
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">Job Title</FormLabel>
                   <FormControl>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select an industry" />
-                    </SelectTrigger>
+                    <Input
+                      placeholder="Frontend Developer"
+                      className="bg-white"
+                      {...field}
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {industries.map((industry) => (
-                      <SelectItem key={industry.id} value={industry.name}>
-                        {industry.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Location</FormLabel>
-                <FormControl>
-                  <Input placeholder="Remote / Yangon" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Salary */}
+            <FormField
+              control={form.control}
+              name="salary"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">Salary</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. 800,000 MMK"
+                      className="bg-white"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Job Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Describe the role and requirements"
-                    className="min-h-[120px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+            {/* Industry */}
+            <FormField
+              control={form.control}
+              name="industry"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">Industry</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full bg-white">
+                        <SelectValue placeholder="Select an industry" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectGroup>
+                        {industries.map((industry) => (
+                          <SelectItem key={industry.id} value={industry.name}>
+                            {industry.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <Button type="submit">Post Job</Button>
-        </form>
-      </Form>
+            {/* Location */}
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">Location</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Remote / Yangon / Mandalay"
+                      className="bg-white"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Description */}
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-700">
+                    Job Description
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Describe the role, responsibilities, and qualifications..."
+                      className="min-h-[120px] bg-white"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Submit Button */}
+            <div className="pt-4 text-center">
+              <Button
+                type="submit"
+                className="w-full sm:w-auto px-6 py-3 text-base"
+              >
+                Post Job
+              </Button>
+            </div>
+          </form>
+        </Form>
+      </div>
     </main>
   );
 }

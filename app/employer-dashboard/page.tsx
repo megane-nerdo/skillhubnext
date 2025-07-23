@@ -16,7 +16,7 @@ export default async function EmployerDashboard() {
 
   const jobs = await prisma.job.findMany({
     where: { employerId: userId },
-    include: { Application: true },
+    include: { applications: true },
     orderBy: { createdAt: "desc" },
   });
 

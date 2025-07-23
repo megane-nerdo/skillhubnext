@@ -36,7 +36,7 @@ export function EmployerJobList({ jobs }: { jobs: any[] }) {
               <h2 className="text-lg font-semibold">{job.title}</h2>
               <p>{job.description.slice(0, 100)}...</p>
               <p className="text-sm text-gray-500">
-                Applications: {job.Application.length}
+                Applications: {job.applications.length}
               </p>
               <div className="mt-2 flex gap-4">
                 <Link

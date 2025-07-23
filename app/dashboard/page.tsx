@@ -1,22 +1,22 @@
 import { authOptions } from "@/app/lib/auth";
-import { getServerSession } from 'next-auth'
-import { PrismaClient } from '@prisma/client'
+import { getServerSession } from "next-auth";
+import { PrismaClient } from "@prisma/client";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export default async function JobSeekerDashboard() {
-  const session = await getServerSession(authOptions)
-  const userId = session?.user.id
+  const session = await getServerSession(authOptions);
+  const userId = session?.user.id;
 
-  if (!userId || session.user.role !== 'JOBSEEKER') {
-    return <p className="p-6 text-red-600">Access Denied</p>
+  if (!userId || session.user.role !== "JOBSEEKER") {
+    return <p className="p-6 text-red-600">Access Denied</p>;
   }
 
   const apps = await prisma.application.findMany({
-    where: { userId },
+    where: { jobSeekerId: userId },
     include: { job: true },
-    orderBy: { createdAt: 'desc' },
-  })
+    orderBy: { createdAt: "desc" },
+  });
 
   return (
     <main className="p-6">
@@ -28,12 +28,14 @@ export default async function JobSeekerDashboard() {
           {apps.map((app) => (
             <li key={app.id} className="border p-4 rounded shadow">
               <h2 className="text-lg font-semibold">{app.job.title}</h2>
-              <p className="text-sm text-gray-500">Applied on {new Date(app.createdAt).toLocaleDateString()}</p>
+              <p className="text-sm text-gray-500">
+                Applied on {new Date(app.createdAt).toLocaleDateString()}
+              </p>
               <p className="mt-2">{app.coverLetter}</p>
             </li>
           ))}
         </ul>
       )}
     </main>
-  )
+  );
 }

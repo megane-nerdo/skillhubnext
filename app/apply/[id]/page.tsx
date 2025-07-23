@@ -1,79 +1,57 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { useSession } from 'next-auth/react'
-import { useParams, useRouter } from 'next/navigation'
-import axios from 'axios'
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useParams, useRouter } from "next/navigation";
+import axios from "axios";
 export default function ApplyJobPage() {
-  const { id } = useParams()
-  const router = useRouter()
+  const { id } = useParams();
+  const router = useRouter();
   // const { data: session } = useSession()
-  const [job, setJob] = useState<any>(null)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [job, setJob] = useState<any>(null);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, reset } = useForm()
+  const { register, handleSubmit, reset } = useForm();
 
   useEffect(() => {
     const fetchJob = async () => {
-      const res = await axios.get(`/api/jobs/${id}`)
-      setJob(res.data)
-    }
+      const res = await axios.get(`/api/jobs/${id}`);
+      setJob(res.data);
+    };
 
-    fetchJob()
-  }, [id])
-  const onSubmit = async () => {
-    setLoading(true)
-    setError('')
+    fetchJob();
+  }, [id]);
+  const onSubmit = async (data: any) => {
+    setLoading(true);
+    setError("");
 
     try {
       const res = await axios.post(`/api/apply/${id}`, {
-        coverLetter: 'Your cover letter here', // replace with actual data
-      })
+        coverLetter: data.coverLetter, // replace with actual data
+      });
 
       if (res.status === 200) {
-        reset()
-        router.push('/dashboard') // redirect to job seeker dashboard
+        reset();
+        router.push("/dashboard"); // redirect to job seeker dashboard
       }
     } catch (err: any) {
-      setError(err.response?.data || 'Failed to apply')
+      setError(err.response?.data || "Failed to apply");
     }
 
-    setLoading(false)
-  }
-  // const onSubmit = async (data: any) => {
-  //   setLoading(true)
-  //   setError('')
+    setLoading(false);
+  };
 
-  //   const res = await fetch(`/api/apply/${id}`, {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify({ coverLetter: data.coverLetter }),
-  //   })
-
-  //    if (res.ok) {
-  //      reset()
-  //      router.push('/dashboard') // redirect to job seeker dashboard
-  //    } else {
-  //      const msg = await res.text()
-  //     setError(msg || 'Failed to apply')
-  //   }
-
-  //   setLoading(false)
-  // }
-
-  //if (!session) return <p className="p-6">Please log in to apply.</p>
-  if (!job) return <p className="p-6">Loading...</p>
+  if (!job) return <p className="p-6">Loading...</p>;
 
   return (
     <main className="p-6 max-w-2xl mx-auto">
       <h1 className="text-xl font-bold mb-2">Apply for: {job.title}</h1>
       <p className="mb-4 text-gray-700">{job.description}</p>
 
-      <form className="space-y-4">
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <textarea
-          {...register('coverLetter', { required: true })}
+          {...register("coverLetter", { required: true })}
           placeholder="Your cover letter..."
           className="w-full border rounded p-2"
           rows={5}
@@ -83,11 +61,11 @@ export default function ApplyJobPage() {
           disabled={loading}
           className="bg-blue-600 text-white px-4 py-2 rounded"
         >
-          {loading ? 'Submitting...' : 'Submit Application'}
+          {loading ? "Submitting..." : "Submit Application"}
         </button>
       </form>
 
       {error && <p className="text-red-600 mt-2">{error}</p>}
     </main>
-  )
+  );
 }

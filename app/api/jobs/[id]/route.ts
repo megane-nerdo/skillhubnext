@@ -1,28 +1,32 @@
 import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/lib/auth";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { postJobSchema } from "../../../post-job/postJobSchema";
 
 const prisma = new PrismaClient();
 
-export async function GET(_: Request, { params }: { params: { id: string } }) {
+export async function GET(
+  _req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const job = await prisma.job.findUnique({
     where: { id: params.id },
   });
 
   if (!job) {
-    return new Response("Not found", { status: 404 });
+    return new Response("Job not found", { status: 404 });
   }
 
-  return Response.json(job);
+  return new Response(JSON.stringify(job), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 export async function DELETE(
   req: Request,
   context: { params: { id: string } }
 ) {
-  const { params } = context;
+  const { params } = await context;
   const jobId = params.id;
 
   if (!jobId) {
@@ -45,7 +49,6 @@ export async function DELETE(
 }
 
 export async function PUT(req: Request, context: { params: { id: string } }) {
-  console.log("PUttttttttttt");
   const { params } = context;
   const jobId = params.id;
 

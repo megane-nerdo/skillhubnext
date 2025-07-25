@@ -19,6 +19,7 @@ export async function POST(req: Request) {
   const industryRecord = await prisma.industry.findUnique({
     where: { name: body.industry },
   });
+  console.log("Industry record found:", industryRecord);
   const job = await prisma.job.create({
     data: {
       title: body.title,
@@ -37,6 +38,7 @@ export async function GET(req: Request) {
   const jobs = await prisma.job.findMany({
     include: {
       employer: true,
+      industry: true,
     },
   });
   return Response.json(jobs);

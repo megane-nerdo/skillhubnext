@@ -61,6 +61,7 @@ export default function PostJobPage() {
       method: "POST",
       body: JSON.stringify(data),
     });
+    console.log(data);
     if (!res.ok) {
       const error = await res.json();
       console.error("Error posting job:", error);

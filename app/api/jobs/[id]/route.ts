@@ -10,16 +10,28 @@ export async function GET(
 ) {
   const job = await prisma.job.findUnique({
     where: { id: params.id },
+    include: {
+      industry: true,
+      employer: true,
+    },
   });
 
   if (!job) {
     return new Response("Job not found", { status: 404 });
   }
 
-  return new Response(JSON.stringify(job), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  return new Response(
+    JSON.stringify({
+      ...job,
+      careerOpportunities: job.careerOpportunities ?? [], // ← this ensures it's not undefined
+      benefits: job.benefits ?? [],
+      highlights: job.highlights ?? [],
+    }),
+    {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
 }
 
 export async function DELETE(

@@ -1,7 +1,9 @@
 "use client";
+
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import Link from "next/link";
+
 export function EmployerJobList({ jobs }: { jobs: any[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -16,7 +18,7 @@ export function EmployerJobList({ jobs }: { jobs: any[] }) {
 
     if (res.ok) {
       startTransition(() => {
-        router.refresh(); // Re-fetch data
+        router.refresh();
       });
     } else {
       alert("Failed to delete job.");
@@ -24,38 +26,60 @@ export function EmployerJobList({ jobs }: { jobs: any[] }) {
   }
 
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Your Posted Jobs</h1>
+    <main className="p-6 max-w-5xl mx-auto">
+      <h1 className="text-3xl font-bold text-gray-800 mb-6">
+        Your Posted Jobs
+      </h1>
 
       {jobs.length === 0 ? (
-        <p>You haven’t posted any jobs yet.</p>
+        <p className="text-gray-600 text-lg">
+          You haven’t posted any jobs yet.
+        </p>
       ) : (
-        <ul className="space-y-4">
+        <div className="space-y-6">
           {jobs.map((job) => (
-            <li key={job.id} className="border p-4 rounded shadow">
-              <h2 className="text-lg font-semibold">{job.title}</h2>
-              <p>{job.description.slice(0, 100)}...</p>
-              <p className="text-sm text-gray-500">
-                Applications: {job.applications.length}
-              </p>
-              <div className="mt-2 flex gap-4">
+            <div
+              key={job.id}
+              className="border border-gray-200 rounded-2xl shadow-sm p-5 hover:shadow-md transition"
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    {job.title}
+                  </h2>
+                  <p className="text-gray-600 mt-1">
+                    {job.description.slice(0, 100)}...
+                  </p>
+                </div>
+
+                <div className="text-sm text-gray-500 text-right">
+                  <p>
+                    <span className="font-medium">
+                      {job.applications.length}
+                    </span>{" "}
+                    application{job.applications.length !== 1 && "s"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 flex gap-4">
                 <Link
                   href={`/edit-job/${job.id}`}
-                  className="text-yellow-600 underline"
+                  className="text-yellow-600 font-medium hover:underline transition"
                 >
                   Edit
                 </Link>
                 <button
                   onClick={() => handleDelete(job.id)}
-                  className="text-red-600 underline"
+                  className="text-red-600 font-medium hover:underline transition disabled:opacity-50"
                   disabled={isPending}
                 >
                   {isPending ? "Deleting..." : "Delete"}
                 </button>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </main>
   );

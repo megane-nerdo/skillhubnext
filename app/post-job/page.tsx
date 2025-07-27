@@ -2,7 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { postJobSchema, PostJobFormValues } from "./postJobSchema";
+import { z } from "zod";
 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,6 +27,21 @@ import {
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+// Zod schema
+const postJobSchema = z.object({
+  title: z.string().min(1),
+  salary: z.string().optional(),
+  industry: z.string().optional(),
+  location: z.string().min(1),
+  description: z.string().min(1),
+  requirements: z.string().optional(),
+  benefits: z.string().optional(), // comma-separated string
+  highlights: z.string().optional(),
+  careerOpportunities: z.string().optional(),
+});
+
+type PostJobFormValues = z.infer<typeof postJobSchema>;
+
 export default function PostJobPage() {
   const form = useForm<PostJobFormValues>({
     resolver: zodResolver(postJobSchema),
@@ -36,6 +51,10 @@ export default function PostJobPage() {
       industry: "",
       location: "",
       description: "",
+      requirements: "",
+      benefits: "",
+      highlights: "",
+      careerOpportunities: "",
     },
   });
 
@@ -57,19 +76,27 @@ export default function PostJobPage() {
   }, []);
 
   const onSubmit = async (data: PostJobFormValues) => {
+    const transformedData = {
+      ...data,
+      benefits: data.benefits?.split(",").map((item) => item.trim()) ?? [],
+      highlights: data.highlights?.split(",").map((item) => item.trim()) ?? [],
+      carreerOpportunities:
+        data.careerOpportunities?.split(",").map((item) => item.trim()) ?? [],
+    };
+
     const res = await fetch("/api/jobs", {
       method: "POST",
-      body: JSON.stringify(data),
+      body: JSON.stringify(transformedData),
     });
-    console.log(data);
+
     if (!res.ok) {
       const error = await res.json();
       console.error("Error posting job:", error);
       return;
-    } else {
-      console.log("Form submitted:", data);
-      form.reset();
     }
+
+    console.log("Job posted successfully:", transformedData);
+    form.reset();
   };
 
   return (
@@ -87,13 +114,9 @@ export default function PostJobPage() {
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">Job Title</FormLabel>
+                  <FormLabel>Job Title</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Frontend Developer"
-                      className="bg-white"
-                      {...field}
-                    />
+                    <Input placeholder="Frontend Developer" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -106,13 +129,9 @@ export default function PostJobPage() {
               name="salary"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">Salary</FormLabel>
+                  <FormLabel>Salary</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="e.g. 800,000 MMK"
-                      className="bg-white"
-                      {...field}
-                    />
+                    <Input placeholder="e.g. 800,000 MMK" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -125,13 +144,13 @@ export default function PostJobPage() {
               name="industry"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">Industry</FormLabel>
+                  <FormLabel>Industry</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="w-full bg-white">
+                      <SelectTrigger>
                         <SelectValue placeholder="Select an industry" />
                       </SelectTrigger>
                     </FormControl>
@@ -156,11 +175,10 @@ export default function PostJobPage() {
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">Location</FormLabel>
+                  <FormLabel>Location</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="Remote / Yangon / Mandalay"
-                      className="bg-white"
                       {...field}
                     />
                   </FormControl>
@@ -175,13 +193,11 @@ export default function PostJobPage() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-gray-700">
-                    Job Description
-                  </FormLabel>
+                  <FormLabel>Job Description</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe the role, responsibilities, and qualifications..."
-                      className="min-h-[120px] bg-white"
+                      placeholder="Describe the role..."
+                      className="min-h-[100px]"
                       {...field}
                     />
                   </FormControl>
@@ -190,7 +206,80 @@ export default function PostJobPage() {
               )}
             />
 
-            {/* Submit Button */}
+            {/* Requirements */}
+            <FormField
+              control={form.control}
+              name="requirements"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Requirements</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="e.g. Bachelor's degree, 2+ years experience"
+                      className="min-h-[80px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Benefits */}
+            <FormField
+              control={form.control}
+              name="benefits"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Benefits (comma-separated)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="School Bus, Health Insurance"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Highlights */}
+            <FormField
+              control={form.control}
+              name="highlights"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Highlights (comma-separated)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Fun Environment, Great Team"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Career Opportunities */}
+            <FormField
+              control={form.control}
+              name="careerOpportunities"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Career Opportunities (comma-separated)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Training Provided, Promotion Opportunities"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Submit */}
             <div className="pt-4 text-center">
               <Button
                 type="submit"

@@ -30,6 +30,11 @@ export default function Navbar() {
         <li>
           <Link href="/">Home</Link>
         </li>
+        {session?.user && (
+          <li>
+            <Link href="/info">Profile</Link>
+          </li>
+        )}
         <li>
           <Link href="/jobs">Jobs</Link>
         </li>

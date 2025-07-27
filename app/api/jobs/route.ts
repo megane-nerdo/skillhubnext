@@ -1,15 +1,14 @@
 import { getServerSession } from "next-auth";
 import { PrismaClient } from "@prisma/client";
 import { authOptions } from "@/app/lib/auth";
+
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   const session = (await getServerSession(authOptions)) as {
     user: { id: string; role: string };
   } | null;
-  if (session?.user.role !== "EMPLOYER") {
-    console.log("Unauthorized access attempt by:", session?.user);
-  }
+
   if (!session || session.user.role !== "EMPLOYER") {
     return new Response("Unauthorized", { status: 401 });
   }
@@ -19,7 +18,7 @@ export async function POST(req: Request) {
   const industryRecord = await prisma.industry.findUnique({
     where: { name: body.industry },
   });
-  console.log("Industry record found:", industryRecord);
+
   const job = await prisma.job.create({
     data: {
       title: body.title,
@@ -28,6 +27,10 @@ export async function POST(req: Request) {
       location: body.location,
       description: body.description,
       employerId: session.user.id,
+      benefits: body.benefits || [],
+      highlights: body.highlights || [],
+      careerOpportunities: body.carreerOpportunities || [],
+      requirements: body.requirements || null,
     },
   });
 
@@ -39,6 +42,9 @@ export async function GET(req: Request) {
     include: {
       employer: true,
       industry: true,
+    },
+    orderBy: {
+      createdAt: "desc",
     },
   });
   return Response.json(jobs);

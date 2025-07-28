@@ -5,11 +5,13 @@ import { postJobSchema } from "../../../post-job/postJobSchema";
 const prisma = new PrismaClient();
 
 export async function GET(
-  _req: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
+  context: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await context.params; // ✅ await params
+
   const job = await prisma.job.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       industry: true,
       employer: true,
@@ -60,8 +62,11 @@ export async function DELETE(
   }
 }
 
-export async function PUT(req: Request, context: { params: { id: string } }) {
-  const { params } = context;
+export async function PUT(
+  req: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const params = await context.params;
   const jobId = params.id;
 
   if (!jobId) {
@@ -80,7 +85,17 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
       );
     }
 
-    const { title, salary, industry, location, description } = parsed.data;
+    const {
+      title,
+      salary,
+      industry,
+      location,
+      description,
+      requirements,
+      benefits,
+      highlights,
+      careerOpportunities,
+    } = parsed.data;
 
     // Find the industry by name
     const industryRecord = await prisma.industry.findFirst({
@@ -103,6 +118,14 @@ export async function PUT(req: Request, context: { params: { id: string } }) {
         location,
         description,
         industryId: industryRecord.id,
+        requirements,
+        benefits: benefits ? benefits.split(",").map((b) => b.trim()) : [],
+        highlights: highlights
+          ? highlights.split(",").map((h) => h.trim())
+          : [],
+        careerOpportunities: careerOpportunities
+          ? careerOpportunities.split(",").map((c) => c.trim())
+          : [],
       },
     });
 

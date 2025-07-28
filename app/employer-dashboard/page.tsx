@@ -16,11 +16,19 @@ export default async function EmployerDashboard() {
 
   const jobs = await prisma.job.findMany({
     where: { employerId: userId },
-    include: { applications: true },
+    include: {
+      applications: {
+        include: {
+          jobSeeker: {
+            include: {
+              user: true,
+            },
+          },
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 
   return <EmployerJobList jobs={jobs} />;
 }
-
-// 👇 Split client logic into its own component

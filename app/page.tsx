@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Search } from "lucide-react";
+import TopEmployersSection from "@/components/CompanySection";
 export default function Home() {
   const [query, setQuery] = useState("");
   const router = useRouter();
@@ -67,9 +68,9 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      <TopEmployersSection />
       {/* Features Section */}
-      <section className="mt-16 max-w-5xl w-full px-4 ">
+      <section className="mt-10 max-w-5xl w-full px-4 ">
         <h2 className="text-2xl font-semibold text-center mb-10">
           Why Choose SkillHub?
         </h2>

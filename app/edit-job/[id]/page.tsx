@@ -8,8 +8,10 @@ const prisma = new PrismaClient();
 export default async function EditJobPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
+
   const session = await getServerSession(authOptions);
   const userId = session?.user.id;
 
@@ -18,7 +20,7 @@ export default async function EditJobPage({
   }
 
   const job = await prisma.job.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: { industry: true },
   });
 

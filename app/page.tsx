@@ -22,7 +22,7 @@ export default function Home() {
       <section
         className="w-full py-24 bg-cover bg-right bg-no-repeat bg-neutral-100"
         style={{
-          backgroundImage: `url('/bsnman2.jpg')`,
+          backgroundImage: `url('/bg2.jpg')`,
           minHeight: "400px",
         }}
       >

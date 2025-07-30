@@ -19,12 +19,18 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center bg-white text-gray-800">
       {/* Hero Section */}
-      <section className="w-full  py-16 shadow-sm bg-neutral-100">
+      <section
+        className="w-full py-24 bg-cover bg-right bg-no-repeat bg-neutral-100"
+        style={{
+          backgroundImage: `url('/bsnman2.jpg')`,
+          minHeight: "400px",
+        }}
+      >
         <div className="max-w-3xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-white text-shadow-lg">
             Find Your Dream Job
           </h1>
-          <p className="text-lg md:text-xl mb-6">
+          <p className="text-lg md:text-xl mb-6 text-white text-shadow-xs">
             Discover thousands of opportunities that match your skills and
             goals. Whether you’re a job seeker or an employer — we’ve got you
             covered.

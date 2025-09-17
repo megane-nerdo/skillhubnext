@@ -32,7 +32,7 @@ export default function Navbar() {
         </li>
         {session?.user && (
           <li>
-            <Link href="/info">Profile</Link>
+            <Link href="/profile">Profile</Link>
           </li>
         )}
         <li>
@@ -82,6 +82,9 @@ export default function Navbar() {
             </Link>
           </li>
           <li>
+            <Link href="/profile">Profile</Link>
+          </li>
+          <li>
             <Link href="/jobs" onClick={closeMenu}>
               Jobs
             </Link>
@@ -122,12 +125,12 @@ export default function Navbar() {
           ) : (
             <>
               <li>
-                <Link href="/login" onClick={closeMenu}>
+                <Link href="/auth/login" onClick={closeMenu}>
                   Login
                 </Link>
               </li>
               <li>
-                <Link href="/register" onClick={closeMenu}>
+                <Link href="/auth/register" onClick={closeMenu}>
                   Register
                 </Link>
               </li>

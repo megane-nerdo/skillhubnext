@@ -15,15 +15,15 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
-  const industryRecord = await prisma.industry.findUnique({
-    where: { name: body.industry },
+  const categoryRecord = await prisma.category.findUnique({
+    where: { name: body.category },
   });
 
   const job = await prisma.job.create({
     data: {
       title: body.title,
       salary: body.salary,
-      industryId: industryRecord?.id,
+      categoryId: categoryRecord?.id,
       location: body.location,
       description: body.description,
       employerId: session.user.id,
@@ -41,7 +41,7 @@ export async function GET(req: Request) {
   const jobs = await prisma.job.findMany({
     include: {
       employer: true,
-      industry: true,
+      category: true,
     },
     orderBy: {
       createdAt: "desc",

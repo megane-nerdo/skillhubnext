@@ -31,7 +31,7 @@ import axios from "axios";
 const postJobSchema = z.object({
   title: z.string().min(1),
   salary: z.string().optional(),
-  industry: z.string().optional(),
+  category: z.string().optional(),
   location: z.string().min(1),
   description: z.string().min(1),
   requirements: z.string().optional(),
@@ -48,7 +48,7 @@ export default function PostJobPage() {
     defaultValues: {
       title: "",
       salary: "",
-      industry: "",
+      category: "",
       location: "",
       description: "",
       requirements: "",
@@ -58,21 +58,22 @@ export default function PostJobPage() {
     },
   });
 
-  const [industries, setIndustries] = useState<{ id: string; name: string }[]>(
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     []
   );
 
   useEffect(() => {
-    const fetchIndustries = async () => {
+    const fetchCategories = async () => {
       try {
-        const res = await axios.get("/api/industry");
-        setIndustries(res.data);
+        console.log("fetch category");
+        const res = await axios.get("/api/category");
+        setCategories(res.data);
       } catch (error) {
-        console.error("Error fetching industries", error);
+        console.error("Error fetching categories", error);
       }
     };
 
-    fetchIndustries();
+    fetchCategories();
   }, []);
 
   const onSubmit = async (data: PostJobFormValues) => {
@@ -88,7 +89,7 @@ export default function PostJobPage() {
       method: "POST",
       body: JSON.stringify(transformedData),
     });
-
+    console.log(transformedData);
     if (!res.ok) {
       const error = await res.json();
       console.error("Error posting job:", error);
@@ -141,24 +142,24 @@ export default function PostJobPage() {
             {/* Industry */}
             <FormField
               control={form.control}
-              name="industry"
+              name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Industry</FormLabel>
+                  <FormLabel>Category</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select an industry" />
+                        <SelectValue placeholder="Select a category" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectGroup>
-                        {industries.map((industry) => (
-                          <SelectItem key={industry.id} value={industry.name}>
-                            {industry.name}
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.name}>
+                            {category.name}
                           </SelectItem>
                         ))}
                       </SelectGroup>

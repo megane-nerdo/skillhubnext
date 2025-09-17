@@ -1,14 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Job, Employer, Industry } from "@prisma/client";
+import { Job, Employer, Category } from "@prisma/client";
 import Link from "next/link";
 import axios from "axios";
-import { Factory } from "lucide-react";
 
 type JobWithRelations = Job & {
   employer: Employer;
-  industry: Industry | null;
+  category: Category | null;
 };
 
 export default function JobListPage() {
@@ -30,8 +29,8 @@ export default function JobListPage() {
     const filtered = jobs.filter(
       (job) =>
         job.title.toLowerCase().includes(term) ||
-        job.location.toLowerCase().includes(term) ||
-        job.industry?.name.toLowerCase().includes(term) ||
+        job.location?.toLowerCase().includes(term) ||
+        job.category?.name.toLowerCase().includes(term) ||
         job.employer?.companyName.toLowerCase().includes(term)
     );
     setFilteredJobs(filtered);
@@ -60,7 +59,7 @@ export default function JobListPage() {
           <div className="grid grid-cols-4 sm:grid-cols-5 bg-gray-100 font-semibold text-gray-700 px-4 py-2 text-sm sm:text-base">
             <span>Title</span>
             <span className="hidden sm:block">Salary</span>
-            <span>Industry</span>
+            <span>Category</span>
             <span>Location</span>
             <span>Employer</span>
           </div>
@@ -78,7 +77,7 @@ export default function JobListPage() {
                 {job.title}
               </Link>
               <span className="hidden sm:block">{job.salary ?? "N/A"} MMK</span>
-              <span>{job.industry?.name ?? "Unspecified"}</span>
+              <span>{job.category?.name ?? "Unspecified"}</span>
               <span>{job.location}</span>
               <span>{job.employer.companyName}</span>
             </div>

@@ -8,13 +8,14 @@ export async function GET(
   req: Request,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await context.params; // ✅ await params
+  const { id } = await context.params;
 
   const job = await prisma.job.findUnique({
     where: { id },
     include: {
-      industry: true,
+      category: true,
       employer: true,
+      applications: true,
     },
   });
 
@@ -88,7 +89,7 @@ export async function PUT(
     const {
       title,
       salary,
-      industry,
+      category,
       location,
       description,
       requirements,
@@ -98,13 +99,13 @@ export async function PUT(
     } = parsed.data;
 
     // Find the industry by name
-    const industryRecord = await prisma.industry.findFirst({
-      where: { name: industry },
+    const categoryRecord = await prisma.category.findFirst({
+      where: { name: category },
     });
 
-    if (!industryRecord) {
+    if (!categoryRecord) {
       return NextResponse.json(
-        { error: "Industry not found" },
+        { error: "category not found" },
         { status: 404 }
       );
     }
@@ -117,7 +118,7 @@ export async function PUT(
         salary,
         location,
         description,
-        industryId: industryRecord.id,
+        categoryId: categoryRecord.id,
         requirements,
         benefits: benefits ? benefits.split(",").map((b) => b.trim()) : [],
         highlights: highlights

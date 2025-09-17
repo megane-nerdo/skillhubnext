@@ -32,6 +32,7 @@ model JobSeeker {
   resumeUrl     String?
   skills        String?
   bio           String?
+  profilePicUrl String?
   applications  Application[]
 }
 
@@ -42,6 +43,10 @@ model Employer {
   companyWebsite  String?
   companyAddress  String?
   companyBio      String?
+  size            String?
+  phoneNumber     String?
+  verifiedStatus  Boolean
+  profilePicUrl   String?
   jobs            Job[]
 }
 
@@ -49,10 +54,10 @@ model Job {
   id          String   @id @default(cuid())
   title       String
   salary      String?
-  industryId  String?
-  industry    Industry? @relation(fields: [industryId], references: [id])
-  location    String
-  description String  
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  location    String?
+  description String?
   employerId  String
   employer    Employer     @relation(fields: [employerId], references: [id])
   createdAt   DateTime @default(now())
@@ -72,8 +77,9 @@ model Application {
   jobSeeker   JobSeeker @relation(fields: [jobSeekerId], references:[id])
   coverLetter String
   createdAt   DateTime @default(now())
+  status      String?
 }
-model Industry {
+model Category {
   id          String    @id @default(cuid())
   name        String    @unique
   jobs        Job[]

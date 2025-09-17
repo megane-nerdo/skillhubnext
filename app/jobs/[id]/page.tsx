@@ -4,23 +4,28 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { CircleCheckBig } from "lucide-react";
 
 interface Job {
   id: string;
   title: string;
   salary?: string;
-  industry?: { name: string };
+  category?: { name: string };
   location: string;
   description: string;
   benefits?: string[];
   highlights?: string[];
   requirements?: string;
   careerOpportunities?: string[];
+  applications: {
+    jobSeekerId?: string;
+  }[];
   employer: {
     companyName: string;
     companyWebsite?: string;
     companyAddress?: string;
     companyBio?: string;
+    verifiedStatus?: boolean;
   };
 }
 
@@ -29,7 +34,6 @@ export default function JobDetailPage() {
   const router = useRouter();
   const { data: session } = useSession();
   const [job, setJob] = useState<Job | null>(null);
-
   useEffect(() => {
     const fetchJob = async () => {
       try {
@@ -50,6 +54,9 @@ export default function JobDetailPage() {
     );
 
   const userRole = session?.user?.role ?? null;
+  const disable = job.applications.some(
+    (app) => app.jobSeekerId === session?.user.id
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 space-y-8">
@@ -61,11 +68,11 @@ export default function JobDetailPage() {
             <span>{job.location}</span>
             <span>•</span>
             <span>{job.salary} Ks</span>
-            {job.industry && (
+            {job.category && (
               <>
                 <span>•</span>
                 <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-sm">
-                  {job.industry.name}
+                  {job.category.name}
                 </span>
               </>
             )}
@@ -75,9 +82,14 @@ export default function JobDetailPage() {
         {userRole === "JOBSEEKER" && (
           <button
             onClick={() => router.push(`/apply/${job.id}`)}
-            className="bg-emerald-600 text-white px-5 py-2 rounded-md hover:bg-emerald-700 transition"
+            disabled={disable}
+            className={`px-5 py-2 rounded-md transition ${
+              disable
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-emerald-600 text-white hover:bg-emerald-700"
+            }`}
           >
-            Apply Now
+            {disable ? "Already Applied" : "Apply Now"}
           </button>
         )}
       </div>
@@ -155,7 +167,14 @@ export default function JobDetailPage() {
           <h2 className="text-xl font-semibold mb-3 text-gray-800">
             About the Company
           </h2>
-          <p className="font-bold text-gray-900">{job.employer.companyName}</p>
+          <div className="flex items-center">
+            <p className="font-bold text-gray-900 mr-2">
+              {job.employer.companyName}
+            </p>
+            {!job.employer.verifiedStatus && (
+              <CircleCheckBig size={16} color="green" />
+            )}
+          </div>
           {job.employer.companyWebsite && (
             <p className="mt-1 text-blue-600 hover:underline">
               <a

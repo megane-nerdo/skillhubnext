@@ -5,6 +5,7 @@ import { hash } from "bcryptjs";
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
+  console.log("jjj");
   const data = await req.json();
   const { name, email, password, role } = data;
 
@@ -24,7 +25,9 @@ export async function POST(req: Request) {
       password: hashedPassword,
       role,
       ...(role === "EMPLOYER" && {
-        employer: { create: { companyName: "Your Company" } },
+        employer: {
+          create: { companyName: "Your Company", verifiedStatus: false },
+        },
       }),
       ...(role === "JOBSEEKER" && {
         jobSeeker: { create: {} },

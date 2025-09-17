@@ -21,6 +21,7 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({
     role: user.role,
+    name: user.name,
     ...(user.role === "EMPLOYER" ? user.employer : user.jobSeeker),
   });
 }
@@ -35,27 +36,42 @@ export async function PUT(req: NextRequest) {
   });
 
   const body = await req.json();
+  console.log(body);
 
   if (!user)
     return NextResponse.json({ error: "User not found" }, { status: 404 });
 
   if (user.role === "EMPLOYER") {
-    await prisma.employer.update({
+    await prisma.user.update({
       where: { id: user.id },
       data: {
-        companyName: body.companyName || "",
-        companyWebsite: body.companyWebsite || "",
-        companyAddress: body.companyAddress || "",
-        companyBio: body.companyBio || "",
+        name: body.name || "",
+        employer: {
+          update: {
+            companyName: body.companyName || "",
+            companyWebsite: body.companyWebsite || "",
+            companyAddress: body.companyAddress || "",
+            companyBio: body.companyBio || "",
+            size: body.size || "",
+            phoneNumber: body.phoneNumber || "",
+            profilePicUrl: body.profilePicUrl || "",
+          },
+        },
       },
     });
   } else {
-    await prisma.jobSeeker.update({
+    await prisma.user.update({
       where: { id: user.id },
       data: {
-        skills: body.skills || "",
-        bio: body.bio || "",
-        resumeUrl: body.resumeUrl || "",
+        name: body.name || "",
+        jobSeeker: {
+          update: {
+            skills: body.skills || "",
+            bio: body.bio || "",
+            resumeUrl: body.resumeUrl || "",
+            profilePicUrl: body.profilePicUrl || "",
+          },
+        },
       },
     });
   }

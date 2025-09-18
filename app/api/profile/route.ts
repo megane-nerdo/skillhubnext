@@ -8,13 +8,30 @@ export async function GET(req: NextRequest) {
   if (!session?.user?.email)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: {
-      jobSeeker: true,
-      employer: true,
-    },
-  });
+  const { searchParams } = new URL(req.url);
+  const userId = searchParams.get("userId");
+
+  let user;
+
+  if (userId) {
+    // Fetch another user's profile
+    user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        jobSeeker: true,
+        employer: true,
+      },
+    });
+  } else {
+    // Fetch current user's profile
+    user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: {
+        jobSeeker: true,
+        employer: true,
+      },
+    });
+  }
 
   if (!user)
     return NextResponse.json({ error: "User not found" }, { status: 404 });

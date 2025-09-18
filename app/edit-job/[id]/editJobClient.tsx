@@ -30,7 +30,7 @@ import {
 const postJobSchema = z.object({
   title: z.string().min(1),
   salary: z.string().optional(),
-  industry: z.string().optional(),
+  category: z.string().optional(),
   location: z.string().min(1),
   description: z.string().optional(),
   requirements: z.string().optional(),
@@ -49,7 +49,7 @@ export default function EditJobClient({ job }: { job: any }) {
     defaultValues: {
       title: job.title,
       salary: job.salary || "",
-      industry: job.industry?.name || "",
+      category: job.industry?.name || "",
       location: job.location,
       description: job.description,
       requirements: job.requirements || "",
@@ -59,12 +59,12 @@ export default function EditJobClient({ job }: { job: any }) {
     },
   });
 
-  const [industries, setIndustries] = useState<{ id: string; name: string }[]>(
+  const [categories, setCategories] = useState<{ id: string; name: string }[]>(
     []
   );
 
   useEffect(() => {
-    axios.get("/api/industry").then((res) => setIndustries(res.data));
+    axios.get("/api/category").then((res) => setCategories(res.data));
   }, []);
 
   const onSubmit = async (data: PostJobFormValues) => {
@@ -132,10 +132,10 @@ export default function EditJobClient({ job }: { job: any }) {
             {/* Industry */}
             <FormField
               control={form.control}
-              name="industry"
+              name="category"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Industry</FormLabel>
+                  <FormLabel>Category</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -147,9 +147,9 @@ export default function EditJobClient({ job }: { job: any }) {
                     </FormControl>
                     <SelectContent>
                       <SelectGroup>
-                        {industries.map((industry) => (
-                          <SelectItem key={industry.id} value={industry.name}>
-                            {industry.name}
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.name}>
+                            {category.name}
                           </SelectItem>
                         ))}
                       </SelectGroup>

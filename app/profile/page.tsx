@@ -3,13 +3,26 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { useRef } from "react";
-import { Plus, UserRound } from "lucide-react";
+import {
+  Plus,
+  UserRound,
+  Edit3,
+  MapPin,
+  Phone,
+  Globe,
+  Building2,
+  Users,
+  FileText,
+  Award,
+  Mail,
+  Calendar,
+} from "lucide-react";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -18,19 +31,35 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [isOwnProfile, setIsOwnProfile] = useState(true);
+  const [profileUserId, setProfileUserId] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+  const searchParams = useSearchParams();
   const router = useRouter();
 
   useEffect(() => {
+    const userId = searchParams.get("userId");
+    setProfileUserId(userId);
+    setIsOwnProfile(!userId);
+
     if (session?.user) {
-      axios.get(`/api/profile`).then((res) => {
-        setRole(res.data.role);
-        setFormData(res.data);
-      });
+      const apiUrl = userId ? `/api/profile?userId=${userId}` : `/api/profile`;
+      axios
+        .get(apiUrl)
+        .then((res) => {
+          setRole(res.data.role);
+          setFormData(res.data);
+        })
+        .catch((err) => {
+          console.error("Failed to load profile:", err);
+          if (userId) {
+            // If viewing another user's profile fails, redirect to own profile
+            router.push("/profile");
+          }
+        });
     }
-  }, [session]);
+  }, [session, searchParams, router]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -65,40 +94,53 @@ export default function ProfilePage() {
   };
 
   if (status === "loading" || !formData)
-    return <p className="text-center mt-10">Loading...</p>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
 
   return (
-    <main className="max-w-2xl mx-auto p-6">
-      <Card className="shadow-lg border rounded-2xl">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold">Your Profile</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isEditing ? (
-            // ------------------ EDIT MODE ------------------
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="flex flex-col items-center gap-2">
-                <div
-                  className="w-24 h-24 rounded-full overflow-hidden cursor-pointer border-2 border-gray-300 flex items-center justify-center bg-gray-100"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  {selectedImage ? (
-                    <img
-                      src={URL.createObjectURL(selectedImage)}
-                      alt="Preview"
-                      className="w-full h-full object-cover"
-                    />
-                  ) : formData.profilePicUrl ? (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header Section */}
+        <div className="relative">
+          {/* Background Banner */}
+          <div className="h-48 bg-gradient-to-r from-emerald-100 to-cyan-200/40 rounded-2xl relative overflow-hidden">
+            <div className="absolute inset-0 bg-black/10"></div>
+            <div className="absolute bg-gradient-to-t from-yellow-100/20 to-emerald-100/50 bottom-0 left-0 right-0 h-24"></div>
+          </div>
+
+          {/* Profile Picture and Basic Info */}
+          <div className="relative -mt-16 px-6">
+            <div className="flex flex-col md:flex-row items-start md:items-end gap-6">
+              {/* Profile Picture */}
+              <div className="relative">
+                <div className="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden bg-white">
+                  {formData.profilePicUrl ? (
                     <img
                       src={formData.profilePicUrl}
                       alt="Profile"
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <Plus size={40} strokeWidth={1} />
+                    <div className="w-full h-full bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center">
+                      <UserRound
+                        size={60}
+                        className="text-blue-600"
+                        strokeWidth={1}
+                      />
+                    </div>
                   )}
                 </div>
-
+                {isEditing && isOwnProfile && (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute -bottom-2 -right-2 w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-colors"
+                  >
+                    <Plus size={20} />
+                  </button>
+                )}
                 <input
                   type="file"
                   accept="image/*"
@@ -107,161 +149,347 @@ export default function ProfilePage() {
                   onChange={handleImageChange}
                 />
               </div>
-              <Input
-                name="name"
-                value={formData.name || ""}
-                onChange={handleChange}
-                placeholder="Your Name"
-              />
 
-              {role === "EMPLOYER" ? (
-                <>
-                  <Input
-                    name="companyName"
-                    value={formData.companyName || ""}
-                    onChange={handleChange}
-                    placeholder="Company Name"
-                  />
-                  <Input
-                    name="companyWebsite"
-                    value={formData.companyWebsite || ""}
-                    onChange={handleChange}
-                    placeholder="Website"
-                  />
-                  <Input
-                    name="companyAddress"
-                    value={formData.companyAddress || ""}
-                    onChange={handleChange}
-                    placeholder="Address"
-                  />
-                  <Input
-                    name="size"
-                    value={formData.size || ""}
-                    onChange={handleChange}
-                    placeholder="Company Size"
-                  />
-                  <Input
-                    name="phoneNumber"
-                    value={formData.phoneNumber || ""}
-                    onChange={handleChange}
-                    placeholder="Phone Number"
-                  />
-                  <Textarea
-                    name="companyBio"
-                    value={formData.companyBio || ""}
-                    onChange={handleChange}
-                    placeholder="Company Bio"
-                  />
-                </>
-              ) : (
-                <>
-                  <Input
-                    name="skills"
-                    value={formData.skills || ""}
-                    onChange={handleChange}
-                    placeholder="Your Skills"
-                  />
-                  <Input
-                    name="resumeUrl"
-                    value={formData.resumeUrl || ""}
-                    onChange={handleChange}
-                    placeholder="Resume URL"
-                  />
-                  <Textarea
-                    name="bio"
-                    value={formData.bio || ""}
-                    onChange={handleChange}
-                    placeholder="Your Bio"
-                  />
-                </>
-              )}
-
-              <div className="flex gap-3">
-                <Button type="submit" className="flex-1" disabled={uploading}>
-                  Save
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="flex-1"
-                  disabled={uploading}
-                  onClick={() => setIsEditing(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          ) : (
-            // ------------------ VIEW MODE ------------------
-
-            <div className="space-y-4">
-              <div className="flex justify-center mb-4">
-                {formData.profilePicUrl ? (
-                  <img
-                    src={formData.profilePicUrl}
-                    alt="Profile"
-                    className="w-24 h-24 rounded-full object-cover border"
-                  />
-                ) : (
-                  <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
-                    <UserRound size={80} strokeWidth={1} />
-                  </div>
-                )}
-              </div>
-
-              <p>
-                <span className="font-semibold">Name:</span> {formData.name}
-              </p>
-
-              {role === "EMPLOYER" ? (
-                <>
-                  <p>
-                    <span className="font-semibold">Company:</span>{" "}
+              {/* Basic Info */}
+              <div className="flex-1 text-black">
+                <div className="flex items-center gap-3 mb-2">
+                  <h1 className="text-3xl font-bold">
+                    {formData.name || "Anonymous User"}
+                  </h1>
+                  {role === "EMPLOYER" && (
+                    <span className="px-3 py-1 bg-black/20 rounded-full text-sm font-medium">
+                      <Building2 size={16} className="inline mr-1" />
+                      Employer
+                    </span>
+                  )}
+                  {role === "JOBSEEKER" && (
+                    <span className="px-3 py-1 bg-black/20 rounded-full text-sm font-medium">
+                      <UserRound size={16} className="inline mr-1" />
+                      Job Seeker
+                    </span>
+                  )}
+                </div>
+                {/* {role === "EMPLOYER" && formData.companyName && (
+                  <p className="text-xl text-white/90 mb-2">
                     {formData.companyName}
                   </p>
-                  <p>
-                    <span className="font-semibold">Website:</span>{" "}
-                    {formData.companyWebsite}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Address:</span>{" "}
-                    {formData.companyAddress}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Size:</span> {formData.size}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Phone:</span>{" "}
-                    {formData.phoneNumber}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Bio:</span>{" "}
-                    {formData.companyBio}
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p>
-                    <span className="font-semibold">Skills:</span>{" "}
-                    {formData.skills}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Resume:</span>{" "}
-                    {formData.resumeUrl}
-                  </p>
-                  <p>
-                    <span className="font-semibold">Bio:</span> {formData.bio}
-                  </p>
-                </>
-              )}
+                )} */}
+                <div className="flex flex-wrap gap-4 text-sm text-white/80">
+                  {formData.companyWebsite && (
+                    <div className="flex items-center gap-1">
+                      <Globe size={16} />
+                      <a
+                        href={formData.companyWebsite}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-white transition-colors"
+                      >
+                        Website
+                      </a>
+                    </div>
+                  )}
+                  {formData.companyAddress && (
+                    <div className="flex items-center gap-1">
+                      <MapPin size={16} />
+                      {formData.companyAddress}
+                    </div>
+                  )}
+                  {formData.phoneNumber && (
+                    <div className="flex items-center gap-1">
+                      <Phone size={16} />
+                      {formData.phoneNumber}
+                    </div>
+                  )}
+                </div>
+              </div>
 
-              <Button onClick={() => setIsEditing(true)} className="w-full">
-                Edit Profile
-              </Button>
+              {/* Edit Button */}
+              {isOwnProfile && !isEditing && (
+                <Button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-white text-blue-600 hover:bg-gray-50 shadow-lg"
+                >
+                  <Edit3 size={18} className="mr-2" />
+                  Edit Profile
+                </Button>
+              )}
             </div>
-          )}
-        </CardContent>
-      </Card>
-    </main>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Main Info */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* About Section */}
+            <Card className="shadow-lg border-0 rounded-2xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                  <FileText size={20} className="text-blue-600" />
+                  About
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {isEditing && isOwnProfile ? (
+                  <Textarea
+                    name={role === "EMPLOYER" ? "companyBio" : "bio"}
+                    value={
+                      role === "EMPLOYER"
+                        ? formData.companyBio || ""
+                        : formData.bio || ""
+                    }
+                    onChange={handleChange}
+                    placeholder={
+                      role === "EMPLOYER"
+                        ? "Tell us about your company..."
+                        : "Tell us about yourself..."
+                    }
+                    className="min-h-[120px] resize-none"
+                  />
+                ) : (
+                  <p className="text-gray-700 leading-relaxed">
+                    {(role === "EMPLOYER"
+                      ? formData.companyBio
+                      : formData.bio) || "No information provided"}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Skills/Company Details Section */}
+            <Card className="shadow-lg border-0 rounded-2xl">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xl font-semibold flex items-center gap-2">
+                  {role === "EMPLOYER" ? (
+                    <>
+                      <Building2 size={20} className="text-blue-600" />
+                      Company Details
+                    </>
+                  ) : (
+                    <>
+                      <Award size={20} className="text-blue-600" />
+                      Skills & Experience
+                    </>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {role === "EMPLOYER" ? (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 mb-1 block">
+                          Company Size
+                        </label>
+                        {isEditing ? (
+                          <Input
+                            name="size"
+                            value={formData.size || ""}
+                            onChange={handleChange}
+                            placeholder="e.g., 10-50 employees"
+                          />
+                        ) : (
+                          <p className="text-gray-700">
+                            {formData.size || "Not specified"}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 mb-1 block">
+                          Phone Number
+                        </label>
+                        {isEditing ? (
+                          <Input
+                            name="phoneNumber"
+                            value={formData.phoneNumber || ""}
+                            onChange={handleChange}
+                            placeholder="+1 (555) 123-4567"
+                          />
+                        ) : (
+                          <p className="text-gray-700">
+                            {formData.phoneNumber || "Not provided"}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 mb-1 block">
+                        Company Address
+                      </label>
+                      {isEditing ? (
+                        <Input
+                          name="companyAddress"
+                          value={formData.companyAddress || ""}
+                          onChange={handleChange}
+                          placeholder="123 Main St, City, State"
+                        />
+                      ) : (
+                        <p className="text-gray-700">
+                          {formData.companyAddress || "Not provided"}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 mb-1 block">
+                        Skills
+                      </label>
+                      {isEditing ? (
+                        <Input
+                          name="skills"
+                          value={formData.skills || ""}
+                          onChange={handleChange}
+                          placeholder="JavaScript, React, Node.js, Python..."
+                        />
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {formData.skills ? (
+                            formData.skills
+                              .split(",")
+                              .map((skill: string, index: number) => (
+                                <span
+                                  key={index}
+                                  className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                                >
+                                  {skill.trim()}
+                                </span>
+                              ))
+                          ) : (
+                            <span className="text-gray-400 italic">
+                              No skills listed
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 mb-1 block">
+                        Resume
+                      </label>
+                      {isEditing ? (
+                        <Input
+                          name="resumeUrl"
+                          value={formData.resumeUrl || ""}
+                          onChange={handleChange}
+                          placeholder="https://example.com/resume.pdf"
+                        />
+                      ) : formData.resumeUrl ? (
+                        <a
+                          href={formData.resumeUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline"
+                        >
+                          View Resume
+                        </a>
+                      ) : (
+                        <span className="text-gray-400 italic">
+                          No resume uploaded
+                        </span>
+                      )}
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right Column - Additional Info */}
+          <div className="space-y-6">
+            {/* Contact Information */}
+            <Card className="shadow-lg border-0 rounded-2xl">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Mail size={18} className="text-blue-600" />
+                  Contact
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-center gap-3 text-gray-700">
+                  <Mail size={16} className="text-gray-400" />
+                  <span className="text-sm">{session?.user?.email}</span>
+                </div>
+                {formData.phoneNumber && (
+                  <div className="flex items-center gap-3 text-gray-700">
+                    <Phone size={16} className="text-gray-400" />
+                    <span className="text-sm">{formData.phoneNumber}</span>
+                  </div>
+                )}
+                {formData.companyWebsite && (
+                  <div className="flex items-center gap-3 text-gray-700">
+                    <Globe size={16} className="text-gray-400" />
+                    <a
+                      href={formData.companyWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      Visit Website
+                    </a>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Role Badge */}
+            <Card className="shadow-lg border-0 rounded-2xl">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Users size={18} className="text-blue-600" />
+                  Role
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-3">
+                  {role === "EMPLOYER" ? (
+                    <>
+                      <Building2 size={20} className="text-green-600" />
+                      <div>
+                        <p className="font-medium text-gray-900">Employer</p>
+                        <p className="text-sm text-gray-600">Company Account</p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <UserRound size={20} className="text-blue-600" />
+                      <div>
+                        <p className="font-medium text-gray-900">Job Seeker</p>
+                        <p className="text-sm text-gray-600">
+                          Individual Account
+                        </p>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Edit Form Actions */}
+        {isEditing && isOwnProfile && (
+          <div className="mt-8 flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsEditing(false)}
+              disabled={uploading}
+              className="px-8"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={uploading}
+              className="px-8 bg-blue-600 hover:bg-blue-700"
+            >
+              {uploading ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

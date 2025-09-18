@@ -48,6 +48,7 @@ model Employer {
   verifiedStatus  Boolean
   profilePicUrl   String?
   jobs            Job[]
+  subscriptions   Subscription[]
 }
 
 model Job {
@@ -84,7 +85,25 @@ model Category {
   name        String    @unique
   jobs        Job[]
 }
-
+model SubscriptionPlan {
+  id          String    @id @default(cuid())
+  name        String
+  price       Float
+  duration    Int
+  limitPerMonth Int
+  features    String[]
+  subscriptions Subscription[]
+}
+model Subscription {
+  id          String    @id @default(cuid())
+  employerId  String
+  employer    Employer  @relation(fields: [employerId], references: [id])
+  planId      String
+  plan        SubscriptionPlan  @relation(fields: [planId], references: [id])
+  startDate   DateTime @default(now())
+  endDate     DateTime
+  status      String
+}
 enum Role {
   EMPLOYER
   JOBSEEKER

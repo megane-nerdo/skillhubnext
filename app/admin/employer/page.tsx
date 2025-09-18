@@ -1,55 +1,58 @@
-'use client'
+"use client";
 
-import axios from 'axios'
-import { useEffect, useState } from 'react'
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 export default function EmployerPage() {
-  const [employers, setEmployers] = useState<any[]>([])
-  const [filtered, setFiltered] = useState<any[]>([])
-  const [search, setSearch] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(true)
+  const [employers, setEmployers] = useState<any[]>([]);
+  const [filtered, setFiltered] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    fetchData();
+  }, []);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get('/api/employer')
-      setEmployers(response.data)
-      setFiltered(response.data)
+      const response = await axios.get("/api/employer");
+      setEmployers(response.data);
+      setFiltered(response.data);
     } catch (error) {
-      console.error('Error fetching employers:', error)
-      setError('Failed to fetch employer data')
+      console.error("Error fetching employers:", error);
+      setError("Failed to fetch employer data");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    const lower = search.toLowerCase()
-    const result = employers.filter((emp) =>
-      emp.user.name.toLowerCase().includes(lower) ||
-      emp.companyName.toLowerCase().includes(lower)
-    )
-    setFiltered(result)
-  }, [search, employers])
+    const lower = search.toLowerCase();
+    const result = employers.filter(
+      (emp) =>
+        emp.user.name.toLowerCase().includes(lower) ||
+        emp.companyName.toLowerCase().includes(lower)
+    );
+    setFiltered(result);
+  }, [search, employers]);
 
   const deleteEmployer = async (id: string) => {
-    const confirmed = window.confirm('Are you sure you want to delete this employer?')
-    if (!confirmed) return
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this employer?"
+    );
+    if (!confirmed) return;
 
     try {
-      await axios.delete('/api/employer', { data: { id } })
-      const updated = employers.filter((emp) => emp.id !== id)
-      setEmployers(updated)
-      setFiltered(updated)
+      await axios.delete("/api/employer", { data: { id } });
+      const updated = employers.filter((emp) => emp.id !== id);
+      setEmployers(updated);
+      setFiltered(updated);
     } catch (error) {
-      console.error('Error deleting employer:', error)
-      alert('Failed to delete employer.')
+      console.error("Error deleting employer:", error);
+      alert("Failed to delete employer.");
     }
-  }
+  };
 
   return (
     <div className="container mx-auto p-4">
@@ -77,7 +80,6 @@ export default function EmployerPage() {
               <p className="text-gray-600">{emp.companyName}</p>
               <p>{emp.companyWebsite}</p>
               <p>{emp.companyAddress}</p>
-              <p>{emp.companyBio}</p>
 
               <button
                 onClick={() => deleteEmployer(emp.id)}
@@ -90,5 +92,5 @@ export default function EmployerPage() {
         </ul>
       )}
     </div>
-  )
+  );
 }

@@ -3,8 +3,17 @@
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
-import { LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  Crown,
+  User,
+  Briefcase,
+  Home,
+  Building2,
+} from "lucide-react";
+
 export default function Navbar() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
@@ -13,131 +22,222 @@ export default function Navbar() {
   const closeMenu = () => setIsOpen(false);
 
   return (
-    <nav className="p-4 shadow-sm flex justify-between items-center">
-      <Link href="/" className="text-xl font-bold">
-        Skillhub
-      </Link>
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
+              <Building2 className="text-white" size={20} />
+            </div>
+            <span className="text-xl font-bold text-gray-900">SkillHub</span>
+          </Link>
 
-      <button
-        className="md:hidden"
-        onClick={toggleMenu}
-        aria-label="Toggle menu"
-      >
-        {isOpen ? <X size={24} /> : <Menu size={24} />}
-      </button>
-
-      <ul className="hidden md:flex gap-4 items-center">
-        <li>
-          <Link href="/">Home</Link>
-        </li>
-        {session?.user && (
-          <li>
-            <Link href="/profile">Profile</Link>
-          </li>
-        )}
-        <li>
-          <Link href="/jobs">Jobs</Link>
-        </li>
-        {session?.user?.role === "EMPLOYER" && (
-          <>
-            <li>
-              <Link href="/post-job">Post Job</Link>
-            </li>
-            <li>
-              <Link href="/employer-dashboard">Dashboard</Link>
-            </li>
-          </>
-        )}
-        {session?.user?.role === "JOBSEEKER" && (
-          <li>
-            <Link href="/dashboard">My Applications</Link>
-          </li>
-        )}
-        {session ? (
-          <li>
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-100 rounded transition"
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-8">
+            <Link
+              href="/"
+              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
             >
-              <LogOut size={16} />
-            </button>
-          </li>
-        ) : (
-          <>
-            <li>
-              <Link href="/auth/login">Login</Link>
-            </li>
-            <li>
-              <Link href="/auth/register">Register</Link>
-            </li>
-          </>
-        )}
-      </ul>
+              <Home size={16} />
+              <span>Home</span>
+            </Link>
 
-      {isOpen && (
-        <ul className="absolute top-16 left-0 w-full bg-white shadow-md flex flex-col gap-4 px-6 py-4 md:hidden z-50">
-          <li>
-            <Link href="/" onClick={closeMenu}>
-              Home
+            <Link
+              href="/jobs"
+              className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+            >
+              <Briefcase size={16} />
+              <span>Jobs</span>
             </Link>
-          </li>
-          <li>
-            <Link href="/profile">Profile</Link>
-          </li>
-          <li>
-            <Link href="/jobs" onClick={closeMenu}>
-              Jobs
-            </Link>
-          </li>
-          {session?.user?.role === "EMPLOYER" && (
-            <>
-              <li>
-                <Link href="/post-job" onClick={closeMenu}>
+
+            {session?.user && (
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+              >
+                <User size={16} />
+                <span>Profile</span>
+              </Link>
+            )}
+
+            {session?.user?.role === "EMPLOYER" && (
+              <>
+                <Link
+                  href="/post-job"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
                   Post Job
                 </Link>
-              </li>
-              <li>
-                <Link href="/employer-dashboard" onClick={closeMenu}>
+                <Link
+                  href="/employer-dashboard"
+                  className="text-gray-700 hover:text-blue-600 transition-colors"
+                >
                   Dashboard
                 </Link>
-              </li>
-            </>
-          )}
-          {session?.user?.role === "JOBSEEKER" && (
-            <li>
-              <Link href="/dashboard" onClick={closeMenu}>
+                <Link
+                  href="/subscription"
+                  className="flex items-center gap-2 px-3 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors"
+                >
+                  <Crown size={16} />
+                  <span>Subscription</span>
+                </Link>
+              </>
+            )}
+
+            {session?.user?.role === "JOBSEEKER" && (
+              <Link
+                href="/dashboard"
+                className="text-gray-700 hover:text-blue-600 transition-colors"
+              >
                 My Applications
               </Link>
-            </li>
-          )}
-          {session ? (
-            <li>
+            )}
+
+            {session ? (
               <button
-                onClick={() => {
-                  closeMenu();
-                  signOut({ callbackUrl: "/" });
-                }}
-                className="text-sm underline"
+                onClick={() => signOut({ callbackUrl: "/" })}
+                className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
               >
-                Logout
+                <LogOut size={16} />
+                <span>Logout</span>
               </button>
-            </li>
-          ) : (
-            <>
-              <li>
-                <Link href="/auth/login" onClick={closeMenu}>
+            ) : (
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/auth/login"
+                  className="text-gray-700 hover:text-blue-600 transition-colors"
+                >
                   Login
                 </Link>
-              </li>
-              <li>
-                <Link href="/auth/register" onClick={closeMenu}>
+                <Link
+                  href="/auth/register"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
                   Register
                 </Link>
-              </li>
-            </>
-          )}
-        </ul>
-      )}
+              </div>
+            )}
+          </div>
+
+          {/* Mobile menu button */}
+          <button
+            className="md:hidden p-2 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        {isOpen && (
+          <div className="md:hidden border-t border-gray-200 bg-white">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link
+                href="/"
+                onClick={closeMenu}
+                className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <Home size={18} />
+                <span>Home</span>
+              </Link>
+
+              <Link
+                href="/jobs"
+                onClick={closeMenu}
+                className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <Briefcase size={18} />
+                <span>Jobs</span>
+              </Link>
+
+              {session?.user && (
+                <Link
+                  href="/profile"
+                  onClick={closeMenu}
+                  className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <User size={18} />
+                  <span>Profile</span>
+                </Link>
+              )}
+
+              {session?.user?.role === "EMPLOYER" && (
+                <>
+                  <Link
+                    href="/post-job"
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg"
+                  >
+                    <Briefcase size={18} />
+                    <span>Post Job</span>
+                  </Link>
+                  <Link
+                    href="/employer-dashboard"
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <Building2 size={18} />
+                    <span>Dashboard</span>
+                  </Link>
+                  <Link
+                    href="/subscription"
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 px-3 py-2 bg-yellow-50 text-yellow-700 rounded-lg"
+                  >
+                    <Crown size={18} />
+                    <span>Subscription</span>
+                  </Link>
+                </>
+              )}
+
+              {session?.user?.role === "JOBSEEKER" && (
+                <Link
+                  href="/dashboard"
+                  onClick={closeMenu}
+                  className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <User size={18} />
+                  <span>My Applications</span>
+                </Link>
+              )}
+
+              {session ? (
+                <button
+                  onClick={() => {
+                    closeMenu();
+                    signOut({ callbackUrl: "/" });
+                  }}
+                  className="flex items-center gap-3 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors w-full"
+                >
+                  <LogOut size={18} />
+                  <span>Logout</span>
+                </button>
+              ) : (
+                <div className="space-y-1">
+                  <Link
+                    href="/auth/login"
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <User size={18} />
+                    <span>Login</span>
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg"
+                  >
+                    <User size={18} />
+                    <span>Register</span>
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </nav>
   );
 }

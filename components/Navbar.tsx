@@ -12,6 +12,7 @@ import {
   Briefcase,
   Home,
   Building2,
+  LandPlot,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -28,7 +29,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
-              <Building2 className="text-white" size={20} />
+              <LandPlot className="text-white" size={20} />
             </div>
             <span className="text-xl font-bold text-gray-900">SkillHub</span>
           </Link>

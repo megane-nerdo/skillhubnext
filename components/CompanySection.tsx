@@ -13,9 +13,9 @@ export default function TopEmployersSection() {
   ];
 
   return (
-    <section className="py-12">
+    <section className="pt-12">
       <div className="max-w-6xl mx-auto px-4 text-center">
-        <h2 className="text-3xl font-bold mb-6">Top Employers</h2>
+        <h2 className="text-3xl font-bold mb-10">Top Employers</h2>
         {/* <p className="text-gray-600 mb-10">
           Companies actively hiring and trusted by job seekers
         </p> */}

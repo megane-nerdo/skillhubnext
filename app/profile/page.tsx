@@ -106,9 +106,9 @@ export default function ProfilePage() {
         {/* Header Section */}
         <div className="relative">
           {/* Background Banner */}
-          <div className="h-48 bg-gradient-to-r from-emerald-100 to-cyan-200/40 rounded-2xl relative overflow-hidden">
+          <div className="h-48 bg-gradient-to-r from-blue-200 to-cyan-200/40 rounded-2xl relative overflow-hidden">
             <div className="absolute inset-0 bg-black/10"></div>
-            <div className="absolute bg-gradient-to-t from-yellow-100/20 to-emerald-100/50 bottom-0 left-0 right-0 h-24"></div>
+            <div className="absolute bg-gradient-to-t from-blue-100/20 to-emerald-100/50 bottom-0 left-0 right-0 h-24"></div>
           </div>
 
           {/* Profile Picture and Basic Info */}

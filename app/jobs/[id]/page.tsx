@@ -20,6 +20,7 @@ import {
   CheckCircle,
   Globe,
   Phone,
+  Banknote,
 } from "lucide-react";
 
 interface Job {
@@ -113,7 +114,7 @@ export default function JobDetailPage() {
                 </div>
                 {job.salary && (
                   <div className="flex items-center gap-2">
-                    <DollarSign size={20} className="text-green-600" />
+                    <Banknote size={20} className="text-green-600" />
                     <span className="font-medium">{job.salary} MMK</span>
                   </div>
                 )}

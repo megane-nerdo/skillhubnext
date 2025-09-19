@@ -98,7 +98,6 @@ export async function PUT(
       careerOpportunities,
     } = parsed.data;
 
-    // Find the industry by name
     const categoryRecord = await prisma.category.findFirst({
       where: { name: category },
     });

@@ -421,7 +421,7 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-3 text-gray-700">
                     <Globe size={16} className="text-gray-400" />
                     <a
-                      href={formData.companyWebsite}
+                      href={`http://${formData.companyWebsite}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-sm text-blue-600 hover:text-blue-800"

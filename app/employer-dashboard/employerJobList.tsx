@@ -14,6 +14,7 @@ import {
   Building2,
   MoreVertical,
   ExternalLink,
+  Banknote,
 } from "lucide-react";
 
 export function EmployerJobList({ jobs }: { jobs: any[] }) {
@@ -87,7 +88,7 @@ export function EmployerJobList({ jobs }: { jobs: any[] }) {
                     </div>
                     {job.salary && (
                       <div className="flex items-center gap-1">
-                        <DollarSign size={16} />
+                        <Banknote size={16} />
                         <span>{job.salary} MMK</span>
                       </div>
                     )}

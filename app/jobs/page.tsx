@@ -15,6 +15,7 @@ import {
   Star,
   Clock,
   Users,
+  Banknote,
 } from "lucide-react";
 
 type JobWithRelations = Job & {
@@ -205,7 +206,7 @@ export default function JobListPage() {
                   </div>
                   {job.salary && (
                     <div className="flex items-center gap-3">
-                      <DollarSign size={16} className="text-green-600" />
+                      <Banknote size={16} className="text-green-600" />
                       <span className="text-gray-900 font-semibold">
                         {job.salary} MMK
                       </span>

@@ -34,3 +34,9 @@ export async function DELETE(request: NextRequest) {
     await prisma.$disconnect()
   }
 }
+
+// export async function PUT(request:NextRequest){
+//   try{
+
+//   }
+// }

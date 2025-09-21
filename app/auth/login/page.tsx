@@ -17,7 +17,7 @@ import {
 import { useState } from "react";
 import { loginSchema, LoginFormValues } from "./schema";
 import Link from "next/link";
-import { Building2, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Building2, Mail, Lock, Eye, EyeOff, LandPlot } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -55,7 +55,7 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Building2 className="text-white" size={28} />
+            <LandPlot className="text-white" size={28} />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome Back

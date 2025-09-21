@@ -25,6 +25,7 @@ import {
   EyeOff,
   Briefcase,
   Users,
+  LandPlot,
 } from "lucide-react";
 
 export default function RegisterPage() {
@@ -63,7 +64,7 @@ export default function RegisterPage() {
         {/* Header */}
         <div className="text-center">
           <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Building2 className="text-white" size={28} />
+            <LandPlot className="text-white" size={28} />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Join SkillHub

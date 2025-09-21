@@ -19,6 +19,12 @@ import {
   DollarSign,
   Briefcase,
   LandPlot,
+  MonitorSmartphone,
+  HeartPlus,
+  Landmark,
+  BookOpen,
+  ChartCandlestick,
+  PencilRuler,
 } from "lucide-react";
 import TopEmployersSection from "@/components/CompanySection";
 
@@ -68,12 +74,12 @@ export default function Home() {
   ];
 
   const jobCategories = [
-    { name: "Technology", count: "2,500+", icon: "💻" },
-    { name: "Healthcare", count: "1,800+", icon: "🏥" },
-    { name: "Finance", count: "1,200+", icon: "💰" },
-    { name: "Education", count: "900+", icon: "🎓" },
-    { name: "Marketing", count: "750+", icon: "📈" },
-    { name: "Design", count: "600+", icon: "🎨" },
+    { name: "Technology", count: "2,500+", icon: MonitorSmartphone },
+    { name: "Healthcare", count: "1,800+", icon: HeartPlus },
+    { name: "Finance", count: "1,200+", icon: Landmark },
+    { name: "Education", count: "900+", icon: BookOpen },
+    { name: "Marketing", count: "750+", icon: ChartCandlestick },
+    { name: "Design", count: "600+", icon: PencilRuler },
   ];
 
   return (
@@ -180,8 +186,10 @@ export default function Home() {
                 key={index}
                 href={`/jobs?category=${category.name.toLowerCase()}`}
               >
-                <div className="group bg-white rounded-2xl p-6 text-center hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer">
-                  <div className="text-4xl mb-3">{category.icon}</div>
+                <div className="group rounded-2xl p-6 text-center transition-all duration-200 hover:-translate-y-1 cursor-pointer">
+                  <div className="flex items-center justify-center mb-3">
+                    <category.icon size={40} color="#3884ff" />
+                  </div>
                   <h3 className="font-semibold text-gray-900 mb-1">
                     {category.name}
                   </h3>

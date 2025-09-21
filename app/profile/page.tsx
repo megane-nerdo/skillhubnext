@@ -22,6 +22,8 @@ import {
   Award,
   Mail,
   Calendar,
+  CircleCheckBig,
+  BadgeCheck,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -33,7 +35,7 @@ export default function ProfilePage() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isOwnProfile, setIsOwnProfile] = useState(true);
   const [profileUserId, setProfileUserId] = useState<string | null>(null);
-
+  const [isVerified, setIsVerified] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -50,6 +52,7 @@ export default function ProfilePage() {
         .then((res) => {
           setRole(res.data.role);
           setFormData(res.data);
+          setIsVerified(res.data.verifiedStatus || false);
         })
         .catch((err) => {
           console.error("Failed to load profile:", err);
@@ -60,7 +63,6 @@ export default function ProfilePage() {
         });
     }
   }, [session, searchParams, router]);
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -157,10 +159,15 @@ export default function ProfilePage() {
                     {formData.name || "Anonymous User"}
                   </h1>
                   {role === "EMPLOYER" && (
-                    <span className="px-3 py-1 bg-black/20 rounded-full text-sm font-medium">
-                      <Building2 size={16} className="inline mr-1" />
-                      Employer
-                    </span>
+                    <div className="flex items-center">
+                      <span className="px-3 py-1 bg-black/20 rounded-full text-sm font-medium mr-2">
+                        <Building2 size={16} className="inline mr-1" />
+                        Employer
+                      </span>
+                      {isVerified && (
+                        <CircleCheckBig size={18} className="text-green-600" />
+                      )}
+                    </div>
                   )}
                   {role === "JOBSEEKER" && (
                     <span className="px-3 py-1 bg-black/20 rounded-full text-sm font-medium">

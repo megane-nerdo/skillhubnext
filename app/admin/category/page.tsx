@@ -2,6 +2,8 @@
 
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,6 +18,9 @@ import {
 type Category = { id: string; name: string };
 
 export default function CategoryPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [category, setCategory] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
   const [search, setSearch] = useState("");
@@ -23,6 +28,20 @@ export default function CategoryPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session) {
+      router.push("/auth/login");
+      return;
+    }
+
+    if (session.user.role !== "ADMIN") {
+      router.push("/dashboard");
+      return;
+    }
+  }, [session, status, router]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -76,6 +95,14 @@ export default function CategoryPage() {
       setDeletingId(null);
     }
   };
+
+  if (status === "loading") {
+    return <div className="container mx-auto p-4">Loading...</div>;
+  }
+
+  if (!session || session.user.role !== "ADMIN") {
+    return null;
+  }
 
   return (
     <div className="container mx-auto p-4 space-y-4">

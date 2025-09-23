@@ -2,6 +2,8 @@
 
 import axios from "axios";
 import { useEffect, useMemo, useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,11 +24,28 @@ type JobSeeker = {
 };
 
 export default function JobSeekerPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [jobSeekers, setJobSeekers] = useState<JobSeeker[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session) {
+      router.push("/auth/login");
+      return;
+    }
+
+    if (session.user.role !== "ADMIN") {
+      router.push("/dashboard");
+      return;
+    }
+  }, [session, status, router]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,6 +85,14 @@ export default function JobSeekerPage() {
       setDeletingId(null);
     }
   };
+
+  if (status === "loading") {
+    return <div className="container mx-auto p-4">Loading...</div>;
+  }
+
+  if (!session || session.user.role !== "ADMIN") {
+    return null;
+  }
 
   return (
     <div className="container mx-auto p-4 space-y-4">

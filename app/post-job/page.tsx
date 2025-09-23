@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { CheckSubscription } from "../lib/checkSubscription";
 export default async function PostJob() {
   const session = await getServerSession(authOptions);
+  
   if (!session || session.user.role !== "EMPLOYER") {
     return redirect("/auth/login");
   }

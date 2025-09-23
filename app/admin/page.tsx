@@ -1,6 +1,9 @@
 "use client";
 import Link from "next/link";
 import useSWR from "swr";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -12,6 +15,23 @@ import {
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
 export default function AdminDashboardPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session) {
+      router.push("/auth/login");
+      return;
+    }
+
+    if (session.user.role !== "ADMIN") {
+      router.push("/dashboard");
+      return;
+    }
+  }, [session, status, router]);
+
   const { data: employers } = useSWR("/api/employer", fetcher);
   const { data: jobSeekers } = useSWR("/api/job-seeker", fetcher);
   const { data: categories } = useSWR("/api/category", fetcher);
@@ -21,6 +41,14 @@ export default function AdminDashboardPage() {
   const jobSeekerCount = Array.isArray(jobSeekers) ? jobSeekers.length : 0;
   const categoryCount = Array.isArray(categories) ? categories.length : 0;
   const jobCount = Array.isArray(jobs) ? jobs.length : 0;
+
+  if (status === "loading") {
+    return <div className="container mx-auto p-4">Loading...</div>;
+  }
+
+  if (!session || session.user.role !== "ADMIN") {
+    return null;
+  }
 
   return (
     <div className="container mx-auto p-4 space-y-4">

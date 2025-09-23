@@ -1,11 +1,12 @@
 "use client";
 import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { Employer } from "@prisma/client";
-import { useRouter } from "next/navigation";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardAction,
@@ -18,12 +19,27 @@ import {
 export default function EmployerDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { data: session, status } = useSession();
 
   const [employer, setEmployer] = useState<Employer>();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<Partial<Employer>>({});
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!session) {
+      router.push("/auth/login");
+      return;
+    }
+
+    if (session.user.role !== "ADMIN") {
+      router.push("/dashboard");
+      return;
+    }
+  }, [session, status, router]);
+
   useEffect(() => {
     const fetchEmployer = async () => {
       try {
@@ -57,6 +73,14 @@ export default function EmployerDetailPage() {
       setSaving(false);
     }
   };
+  if (status === "loading") {
+    return <div className="container mx-auto p-4">Loading...</div>;
+  }
+
+  if (!session || session.user.role !== "ADMIN") {
+    return null;
+  }
+
   return (
     <div className="container mx-auto p-4">
       <Card>

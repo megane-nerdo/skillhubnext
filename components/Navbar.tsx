@@ -13,6 +13,10 @@ import {
   Home,
   Building2,
   LandPlot,
+  Settings,
+  Users,
+  FolderOpen,
+  FileText,
 } from "lucide-react";
 
 export default function Navbar() {
@@ -52,7 +56,7 @@ export default function Navbar() {
               <span>Jobs</span>
             </Link>
 
-            {session?.user && (
+            {session?.user && session?.user?.role !== "ADMIN" && (
               <Link
                 href="/profile"
                 className="flex items-center gap-2 text-gray-700 hover:text-blue-600 transition-colors"
@@ -93,6 +97,48 @@ export default function Navbar() {
               >
                 My Applications
               </Link>
+            )}
+
+            {session?.user?.role === "ADMIN" && (
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-1 px-2 py-1 text-gray-600 hover:text-blue-600 transition-colors"
+                >
+                  <Settings size={16} />
+                  <span>Dashboard</span>
+                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/admin/employer"
+                    className="flex items-center gap-1 px-2 py-1 text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    <Building2 size={14} />
+                    <span>Employers</span>
+                  </Link>
+                  <Link
+                    href="/admin/job-seeker"
+                    className="flex items-center gap-1 px-2 py-1 text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    <Users size={14} />
+                    <span>Job Seekers</span>
+                  </Link>
+                  <Link
+                    href="/admin/jobs"
+                    className="flex items-center gap-1 px-2 py-1 text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    <Briefcase size={14} />
+                    <span>Jobs</span>
+                  </Link>
+                  <Link
+                    href="/admin/category"
+                    className="flex items-center gap-1 px-2 py-1 text-gray-600 hover:text-blue-600 transition-colors"
+                  >
+                    <FolderOpen size={14} />
+                    <span>Categories</span>
+                  </Link>
+                </div>
+              </div>
             )}
 
             {session ? (
@@ -202,6 +248,53 @@ export default function Navbar() {
                   <User size={18} />
                   <span>My Applications</span>
                 </Link>
+              )}
+
+              {session?.user?.role === "ADMIN" && (
+                <>
+                  <Link
+                    href="/admin"
+                    onClick={closeMenu}
+                    className="flex items-center gap-3 px-3 py-2 bg-purple-50 text-purple-700 rounded-lg"
+                  >
+                    <Settings size={18} />
+                    <span>Admin Dashboard</span>
+                  </Link>
+                  <div className="pl-6 space-y-1">
+                    <Link
+                      href="/admin/employer"
+                      onClick={closeMenu}
+                      className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Building2 size={16} />
+                      <span>Employers</span>
+                    </Link>
+                    <Link
+                      href="/admin/job-seeker"
+                      onClick={closeMenu}
+                      className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Users size={16} />
+                      <span>Job Seekers</span>
+                    </Link>
+                    <Link
+                      href="/admin/jobs"
+                      onClick={closeMenu}
+                      className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Briefcase size={16} />
+                      <span>Jobs</span>
+                    </Link>
+                    <Link
+                      href="/admin/category"
+                      onClick={closeMenu}
+                      className="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <FolderOpen size={16} />
+                      <span>Categories</span>
+                    </Link>
+                  </div>
+                </>
               )}
 
               {session ? (

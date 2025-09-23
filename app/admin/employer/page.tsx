@@ -132,54 +132,48 @@ export default function EmployerPage() {
       ) : filteredSorted.length === 0 ? (
         <p>No employers found.</p>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="rounded-xl border divide-y">
           {pageItems.map((emp) => (
-            <Card key={emp.id} className="relative">
-              <CardHeader>
-                <CardTitle>{emp.user?.name ?? "Unnamed"}</CardTitle>
-                <CardDescription>
+            <div
+              key={emp.id}
+              className="p-4 flex items-center gap-4 justify-between"
+            >
+              <div className="min-w-0">
+                <p className="font-medium truncate">
+                  {emp.user?.name ?? "Unnamed"}
+                </p>
+                <p className="text-sm text-muted-foreground truncate">
                   {emp.companyName ?? "No company name"}
-                </CardDescription>
-                <CardAction>
-                  <div className="flex items-center gap-2">
-                    <Link href={`/admin/employer/${emp.id}`}>
-                      <Button size="sm" variant="outline">
-                        Open
-                      </Button>
-                    </Link>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleDelete(emp.id)}
-                      disabled={deletingId === emp.id}
-                    >
-                      {deletingId === emp.id ? "Deleting..." : "Delete"}
-                    </Button>
-                  </div>
-                </CardAction>
-              </CardHeader>
-              <CardContent className="space-y-1">
+                </p>
                 {emp.companyWebsite && (
-                  <p className="text-sm truncate">{emp.companyWebsite}</p>
+                  <p className="text-xs truncate">{emp.companyWebsite}</p>
                 )}
-                {emp.companyAddress && (
-                  <p className="text-sm text-muted-foreground truncate">
-                    {emp.companyAddress}
-                  </p>
-                )}
-              </CardContent>
-              <CardFooter className="justify-between">
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
                 <span
                   className={
                     emp.verifiedStatus
-                      ? "text-green-600 text-sm"
-                      : "text-amber-600 text-sm"
+                      ? "text-green-600 text-xs"
+                      : "text-amber-600 text-xs"
                   }
                 >
                   {emp.verifiedStatus ? "Verified" : "Unverified"}
                 </span>
-              </CardFooter>
-            </Card>
+                <Link href={`/admin/employer/${emp.id}`}>
+                  <Button size="sm" variant="outline">
+                    Open
+                  </Button>
+                </Link>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleDelete(emp.id)}
+                  disabled={deletingId === emp.id}
+                >
+                  {deletingId === emp.id ? "Deleting..." : "Delete"}
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       )}

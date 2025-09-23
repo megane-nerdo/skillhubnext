@@ -32,6 +32,9 @@ export async function POST(req: Request) {
       ...(role === "JOBSEEKER" && {
         jobSeeker: { create: {} },
       }),
+      ...(role === "ADMIN" && {
+        admin: { create: {} },
+      }),
     },
   });
 

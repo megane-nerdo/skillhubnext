@@ -1,64 +1,137 @@
 "use client";
-import { useState } from "react";
+
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
+type Category = { id: string; name: string };
+
 export default function CategoryPage() {
   const [category, setCategory] = useState("");
-  const [categories, setCategories] = useState<string[]>([]); // to store list of industries
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get("/api/category");
+        setCategories(response.data);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setError("Failed to fetch categories");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const filtered = useMemo(() => {
+    const lower = search.toLowerCase();
+    return categories.filter((c) => c.name.toLowerCase().includes(lower));
+  }, [categories, search]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!category.trim()) return;
     try {
-      console.log("Submitting category:", category);
-      const response = await axios.post("/api/category", { name: category });
-      console.log("Industry submitted:", response.data);
+      setSaving(true);
+      const response = await axios.post("/api/category", {
+        name: category.trim(),
+      });
+      setCategories((prev) => [response.data, ...prev]);
       setCategory("");
-      fetchCategories(); // Clear the input field after submission
-    } catch (error) {
-      console.error("Error submitting category:", error);
+    } catch (err) {
+      console.error("Error submitting category:", err);
+      alert("Failed to add category");
+    } finally {
+      setSaving(false);
     }
   };
-  const fetchCategories = async () => {
+
+  const handleDelete = async (id: string) => {
+    const ok = window.confirm("Delete this category?");
+    if (!ok) return;
     try {
-      const response = await axios.get("/api/category");
-      setCategories(response.data); // assumes backend returns array of strings or objects
-    } catch (error) {
-      console.error("Error fetching categories:", error);
+      setDeletingId(id);
+      await axios.delete("/api/category", { data: { id } });
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+    } catch (err) {
+      console.error("Error deleting category:", err);
+      alert("Failed to delete category");
+    } finally {
+      setDeletingId(null);
     }
   };
-  useEffect(() => {
-    fetchCategories(); // fetch when page loads
-  }, []);
-  useEffect;
+
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Category Page</h1>
-      <form onSubmit={handleSubmit}>
-        <label className="block mb-2">
-          Category Name:
-          <input
-            type="text"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="border p-2 w-full"
-            placeholder="Enter category name"
+    <div className="container mx-auto p-4 space-y-4">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <h1 className="text-2xl font-bold">Categories</h1>
+        <div className="w-full sm:w-64">
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search categories"
           />
-        </label>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Add Category
-        </button>
-      </form>
-      <div className="mt-6">
-        <h2 className="text-xl font-semibold mb-2">Category List</h2>
-        <ul className="list-disc pl-6">
-          {categories.map((ind, index) => (
-            <li key={index}>{ind.name}</li>
-          ))}
-        </ul>
+        </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Add Category</CardTitle>
+          <CardDescription>Create a new category</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="flex gap-2 flex-wrap">
+            <Input
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              placeholder="Enter category name"
+            />
+            <Button type="submit" disabled={saving}>
+              {saving ? "Adding..." : "Add"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : filtered.length === 0 ? (
+        <p>No categories found.</p>
+      ) : (
+        <div className="divide-y rounded-xl border">
+          {filtered.map((c) => (
+            <div key={c.id} className="flex items-center justify-between p-4">
+              <span className="font-medium">{c.name}</span>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => handleDelete(c.id)}
+                disabled={deletingId === c.id}
+              >
+                {deletingId === c.id ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -23,7 +23,12 @@ model User {
 
   jobSeeker JobSeeker?
   employer  Employer?
+  admin     Admin?
 
+}
+model Admin {
+  id        String   @id
+  user      User     @relation(fields: [id], references: [id], onDelete: Cascade)
 }
 
 model JobSeeker {
@@ -107,4 +112,5 @@ model Subscription {
 enum Role {
   EMPLOYER
   JOBSEEKER
+  ADMIN
 }

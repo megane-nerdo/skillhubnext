@@ -15,12 +15,15 @@ import {
   MoreVertical,
   ExternalLink,
   Banknote,
+  Star,
+  StarOff,
 } from "lucide-react";
 
 export function EmployerJobList({ jobs }: { jobs: any[] }) {
   const [isPending, startTransition] = useTransition();
   const [openJobId, setOpenJobId] = useState<string | null>(null);
   const [selectedApplicant, setSelectedApplicant] = useState<any | null>(null);
+  const [shortlistingId, setShortlistingId] = useState<string | null>(null);
   const router = useRouter();
 
   async function handleDelete(id: string) {
@@ -37,6 +40,35 @@ export function EmployerJobList({ jobs }: { jobs: any[] }) {
       });
     } else {
       alert("Failed to delete job.");
+    }
+  }
+
+  async function handleShortlist(
+    applicationId: string,
+    isShortlisted: boolean
+  ) {
+    try {
+      setShortlistingId(applicationId);
+      const res = await fetch(`/api/application/${applicationId}/shortlist`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isShortlisted }),
+      });
+
+      if (res.ok) {
+        startTransition(() => {
+          router.refresh();
+        });
+      } else {
+        alert("Failed to update shortlist status.");
+      }
+    } catch (error) {
+      console.error("Error updating shortlist:", error);
+      alert("Failed to update shortlist status.");
+    } finally {
+      setShortlistingId(null);
     }
   }
 
@@ -173,14 +205,26 @@ export function EmployerJobList({ jobs }: { jobs: any[] }) {
                     {job.applications.map((app: any) => (
                       <div
                         key={app.id}
-                        className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 cursor-pointer transition-colors"
+                        className={`p-4 rounded-xl hover:bg-gray-100 cursor-pointer transition-colors ${
+                          app.isShortlisted
+                            ? "bg-yellow-50 border border-yellow-200"
+                            : "bg-gray-50"
+                        }`}
                         onClick={() => setSelectedApplicant(app)}
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
-                            <h5 className="font-semibold text-gray-900 mb-1">
-                              {app.jobSeeker.user.name || "Unnamed Applicant"}
-                            </h5>
+                            <div className="flex items-center gap-2 mb-1">
+                              <h5 className="font-semibold text-gray-900">
+                                {app.jobSeeker.user.name || "Unnamed Applicant"}
+                              </h5>
+                              {app.isShortlisted && (
+                                <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                                  <Star size={12} />
+                                  Shortlisted
+                                </span>
+                              )}
+                            </div>
                             <p className="text-sm text-gray-600 mb-2">
                               Applied on{" "}
                               {new Date(app.createdAt).toLocaleDateString()}
@@ -190,6 +234,29 @@ export function EmployerJobList({ jobs }: { jobs: any[] }) {
                             </p>
                           </div>
                           <div className="flex items-center gap-2 ml-4">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleShortlist(app.id, !app.isShortlisted);
+                              }}
+                              disabled={shortlistingId === app.id}
+                              className={`flex items-center gap-1 px-3 py-1 rounded-lg transition-colors text-sm ${
+                                app.isShortlisted
+                                  ? "text-yellow-600 hover:text-yellow-800 hover:bg-yellow-100"
+                                  : "text-gray-600 hover:text-yellow-600 hover:bg-yellow-50"
+                              }`}
+                            >
+                              {shortlistingId === app.id ? (
+                                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div>
+                              ) : app.isShortlisted ? (
+                                <StarOff size={14} />
+                              ) : (
+                                <Star size={14} />
+                              )}
+                              <span>
+                                {app.isShortlisted ? "Remove" : "Shortlist"}
+                              </span>
+                            </button>
                             <Link
                               href={`/profile?userId=${app.jobSeeker.user.id}`}
                               className="flex items-center gap-1 px-3 py-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors text-sm"
@@ -234,10 +301,18 @@ export function EmployerJobList({ jobs }: { jobs: any[] }) {
                   <Users size={24} className="text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">
-                    {selectedApplicant.jobSeeker.user.name ||
-                      "Unnamed Applicant"}
-                  </h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-xl font-bold text-gray-900">
+                      {selectedApplicant.jobSeeker.user.name ||
+                        "Unnamed Applicant"}
+                    </h3>
+                    {selectedApplicant.isShortlisted && (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-800 text-sm rounded-full">
+                        <Star size={14} />
+                        Shortlisted
+                      </span>
+                    )}
+                  </div>
                   <p className="text-gray-600">
                     Applied on{" "}
                     {new Date(selectedApplicant.createdAt).toLocaleDateString()}
@@ -273,6 +348,33 @@ export function EmployerJobList({ jobs }: { jobs: any[] }) {
               </div>
 
               <div className="flex gap-4 pt-4">
+                <button
+                  onClick={() =>
+                    handleShortlist(
+                      selectedApplicant.id,
+                      !selectedApplicant.isShortlisted
+                    )
+                  }
+                  disabled={shortlistingId === selectedApplicant.id}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-xl transition-colors ${
+                    selectedApplicant.isShortlisted
+                      ? "bg-yellow-600 text-white hover:bg-yellow-700"
+                      : "bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                  }`}
+                >
+                  {shortlistingId === selectedApplicant.id ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current"></div>
+                  ) : selectedApplicant.isShortlisted ? (
+                    <StarOff size={18} />
+                  ) : (
+                    <Star size={18} />
+                  )}
+                  <span>
+                    {selectedApplicant.isShortlisted
+                      ? "Remove from Shortlist"
+                      : "Add to Shortlist"}
+                  </span>
+                </button>
                 <Link
                   href={`/profile?userId=${selectedApplicant.jobSeeker.user.id}`}
                   className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"

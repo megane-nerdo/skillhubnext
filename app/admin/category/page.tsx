@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Edit, Save, X } from "lucide-react";
 
 type Category = { id: string; name: string };
 
@@ -28,6 +29,9 @@ export default function CategoryPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "loading") return;
@@ -96,6 +100,36 @@ export default function CategoryPage() {
     }
   };
 
+  const handleEdit = (category: Category) => {
+    setEditingId(category.id);
+    setEditName(category.name);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditName("");
+  };
+
+  const handleUpdate = async (id: string) => {
+    if (!editName.trim()) return;
+    try {
+      setUpdatingId(id);
+      const response = await axios.put(`/api/category/${id}`, {
+        name: editName.trim(),
+      });
+      setCategories((prev) =>
+        prev.map((c) => (c.id === id ? response.data : c))
+      );
+      setEditingId(null);
+      setEditName("");
+    } catch (err: any) {
+      console.error("Error updating category:", err);
+      alert(err.response?.data?.error || "Failed to update category");
+    } finally {
+      setUpdatingId(null);
+    }
+  };
+
   if (status === "loading") {
     return <div className="container mx-auto p-4">Loading...</div>;
   }
@@ -146,15 +180,59 @@ export default function CategoryPage() {
         <div className="divide-y rounded-xl border">
           {filtered.map((c) => (
             <div key={c.id} className="flex items-center justify-between p-4">
-              <span className="font-medium">{c.name}</span>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDelete(c.id)}
-                disabled={deletingId === c.id}
-              >
-                {deletingId === c.id ? "Deleting..." : "Delete"}
-              </Button>
+              {editingId === c.id ? (
+                <div className="flex items-center gap-2 flex-1">
+                  <Input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    placeholder="Enter category name"
+                    className="flex-1"
+                    autoFocus
+                  />
+                  <Button
+                    size="sm"
+                    onClick={() => handleUpdate(c.id)}
+                    disabled={updatingId === c.id || !editName.trim()}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    {updatingId === c.id ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    ) : (
+                      <Save size={16} />
+                    )}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    disabled={updatingId === c.id}
+                  >
+                    <X size={16} />
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <span className="font-medium">{c.name}</span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(c)}
+                      disabled={editingId !== null}
+                    >
+                      <Edit size={16} />
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDelete(c.id)}
+                      disabled={deletingId === c.id || editingId !== null}
+                    >
+                      {deletingId === c.id ? "Deleting..." : "Delete"}
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>

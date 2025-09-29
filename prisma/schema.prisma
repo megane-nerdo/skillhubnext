@@ -83,7 +83,7 @@ model Application {
   jobSeeker   JobSeeker @relation(fields: [jobSeekerId], references:[id])
   coverLetter String
   createdAt   DateTime @default(now())
-  status      String?
+  isShortlisted Boolean @default(false)
 }
 model Category {
   id          String    @id @default(cuid())

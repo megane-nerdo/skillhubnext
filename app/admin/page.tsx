@@ -36,11 +36,15 @@ export default function AdminDashboardPage() {
   const { data: jobSeekers } = useSWR("/api/job-seeker", fetcher);
   const { data: categories } = useSWR("/api/category", fetcher);
   const { data: jobs } = useSWR("/api/jobs", fetcher);
+  const { data: subscriptionPlans } = useSWR("/api/subscription-plan", fetcher);
 
   const employerCount = Array.isArray(employers) ? employers.length : 0;
   const jobSeekerCount = Array.isArray(jobSeekers) ? jobSeekers.length : 0;
   const categoryCount = Array.isArray(categories) ? categories.length : 0;
   const jobCount = Array.isArray(jobs) ? jobs.length : 0;
+  const subscriptionPlanCount = Array.isArray(subscriptionPlans)
+    ? subscriptionPlans.length
+    : 0;
 
   if (status === "loading") {
     return <div className="container mx-auto p-4">Loading...</div>;
@@ -89,22 +93,6 @@ export default function AdminDashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Categories</CardTitle>
-            <CardDescription>Available job categories</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-semibold">{categoryCount}</p>
-            <Link
-              href="/admin/category"
-              className="text-sm text-blue-600 underline"
-            >
-              Manage categories
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
             <CardTitle>Total Jobs</CardTitle>
             <CardDescription>Posted job listings</CardDescription>
           </CardHeader>
@@ -118,6 +106,48 @@ export default function AdminDashboardPage() {
             </Link>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Additional Management Section */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">System Management</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Categories</CardTitle>
+              <CardDescription>Available job categories</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-semibold mb-2">{categoryCount}</p>
+              <Link
+                href="/admin/category"
+                className="text-sm text-blue-600 underline"
+              >
+                Manage categories
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Subscription Plans</CardTitle>
+              <CardDescription>
+                Manage employer subscription plans
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-3xl font-semibold mb-2">
+                {subscriptionPlanCount}
+              </p>
+              <Link
+                href="/admin/subscription-plans"
+                className="text-sm text-blue-600 underline"
+              >
+                Manage subscription plans
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

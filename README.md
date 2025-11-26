@@ -13,17 +13,19 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 To access Admin Dashboard, open [http://localhost:3000/admin] and login with Admin account.
 
-Admin account:
-Email - admin1@gmail.com
-Password - 111111
+Admin account:  
+
+Email - admin1@gmail.com  
+Password - 111111  
 
 Acess the database and see the user information by running:
 ```bash
 npx prisma studio
 
 ```
-Sample user account:
-Email - aiamyanmar@gmail.com,
-Password - 111111
-Email - jobseeker1@gmail.com,
-Password - 111111
+Sample user account:  
+
+Email - aiamyanmar@gmail.com  
+Password - 111111  
+Email - jobseeker1@gmail.com  
+Password - 111111  

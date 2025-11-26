@@ -23,7 +23,7 @@ npx prisma studio
 
 ```
 Sample user account:
-Email - aiamyanmar@gmail.com // Employer
+Email - aiamyanmar@gmail.com,
 Password - 111111
-Email - jobseeker1@gmail.com // Job Seeker
+Email - jobseeker1@gmail.com,
 Password - 111111

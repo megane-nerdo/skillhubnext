@@ -104,11 +104,11 @@ export function PostJobClient({
     try {
       const transformedData = {
         ...data,
-        benefits: data.benefits?.split(".").map((item) => item.trim()) ?? [],
+        benefits: data.benefits?.split(",").map((item) => item.trim()) ?? [],
         highlights:
-          data.highlights?.split(".").map((item) => item.trim()) ?? [],
+          data.highlights?.split(",").map((item) => item.trim()) ?? [],
         carreerOpportunities:
-          data.careerOpportunities?.split(".").map((item) => item.trim()) ?? [],
+          data.careerOpportunities?.split(",").map((item) => item.trim()) ?? [],
       };
 
       const res = await fetch("/api/jobs", {
